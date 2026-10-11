@@ -45,6 +45,11 @@ AcceptPathInfo On
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^api/v1/?(.*)$ /api/v1/index.php?_route=$1 [L,QSA]
 
+    # WhatsApp order-receipt endpoint: clean path where rewrites work.
+    # Hosts that drop mod_rewrite substitutions can call the file directly
+    # as /api/order/success.php — same handler, same behaviour.
+    RewriteRule ^api/order/success/?$ /api/order/success.php [L]
+
     # --- Pretty URLs -------------------------------------------------------
     # /product/{slug}  ->  product.php?slug={slug}
     RewriteRule ^product/([a-zA-Z0-9\-]+)/?$ /product.php?slug=$1 [L,QSA]

@@ -8,6 +8,10 @@
 
 declare(strict_types=1);
 
+// Buffer all output so that stray warnings or notices cannot corrupt the JSON
+// body or trigger "headers already sent" on shared hosting environments.
+ob_start();
+
 require_once __DIR__ . '/bootstrap.php';
 
 /* ---------------------------------------------------------------------------

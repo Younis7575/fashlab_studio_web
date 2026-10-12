@@ -115,8 +115,21 @@ function api_query_int(string $key, int $default = 0): int
 
 function api_json(array $payload, int $status = 200): never
 {
+    $body = (string) json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
     http_response_code($status);
-    echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    // Explicit Content-Length prevents Apache from truncating or replacing
+    // the response body on shared hosting (e.g. IONOS ErrorDocument intercept).
+    if (!headers_sent()) {
+        header('Content-Length: ' . strlen($body));
+    }
+    echo $body;
+
+    // Flush every output-buffering layer so the body leaves PHP before exit.
+    while (ob_get_level() > 0) {
+        ob_end_flush();
+    }
+    flush();
     exit;
 }
 

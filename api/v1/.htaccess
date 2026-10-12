@@ -1,0 +1,40 @@
+# ============================================================================
+# API v1 — Apache directives local to this directory
+#
+# Problem: IONOS Apache intercepts PHP-generated 4xx/5xx responses and applies
+# the root ErrorDocument handlers (e.g. ErrorDocument 404 /404.php), which
+# discards the JSON body that PHP already wrote and sends an empty response
+# (content-length: 0) instead. The PHP-set headers (CORS, X-Api-Token,
+# Content-Type: application/json) survive, but the body does not.
+#
+# Fix: reset every ErrorDocument to the Apache built-in plain-text page within
+# this directory so the web server never replaces the PHP body. The API always
+# outputs a complete JSON envelope — including for 4xx and 5xx — so the
+# Flutter app can parse it regardless of status code.
+# ============================================================================
+
+# Never replace PHP-generated error bodies with custom HTML pages.
+ErrorDocument 400 " "
+ErrorDocument 401 " "
+ErrorDocument 403 " "
+ErrorDocument 404 " "
+ErrorDocument 405 " "
+ErrorDocument 408 " "
+ErrorDocument 409 " "
+ErrorDocument 410 " "
+ErrorDocument 422 " "
+ErrorDocument 429 " "
+ErrorDocument 500 " "
+ErrorDocument 502 " "
+ErrorDocument 503 " "
+ErrorDocument 504 " "
+
+# PATH_INFO is needed for the /api/v1/index.php/endpoint style.
+AcceptPathInfo On
+
+# Block direct access to the internal route and helper files; only
+# index.php is the public entry point.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(routes|bootstrap|helpers)(/|\.php|$) - [F,L]
+</IfModule>

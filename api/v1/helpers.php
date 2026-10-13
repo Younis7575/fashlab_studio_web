@@ -117,15 +117,20 @@ function api_json(array $payload, int $status = 200): never
 {
     $body = (string) json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-    http_response_code($status);
-    // Explicit Content-Length prevents Apache from truncating or replacing
-    // the response body on shared hosting (e.g. IONOS ErrorDocument intercept).
+    // IONOS Apache (CGI/FastCGI) discards the response body for any non-2xx
+    // status code set by PHP, producing content-length: 0 even when PHP
+    // explicitly sets Content-Length. The fix: always send HTTP 200 so Apache
+    // passes the body through, and carry the real status in a custom header
+    // that the Flutter client reads. Any consuming code that cares about HTTP
+    // status should read X-Api-Status instead.
+    http_response_code(200);
     if (!headers_sent()) {
+        header('X-Api-Status: ' . $status);
         header('Content-Length: ' . strlen($body));
     }
     echo $body;
 
-    // Flush every output-buffering layer so the body leaves PHP before exit.
+    // Flush every output-buffering layer so the body reaches the client.
     while (ob_get_level() > 0) {
         ob_end_flush();
     }

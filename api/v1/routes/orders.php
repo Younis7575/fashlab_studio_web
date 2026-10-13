@@ -106,42 +106,6 @@ route('POST', '/orders', static function (): void {
     ], 'Order ' . $result['order_number'] . ' placed. Thank you!', 201);
 });
 
-require_once __DIR__ . '/../../../includes/whatsapp-service.php';
-
-/**
- * POST /order/success — fire the automated WhatsApp order receipt.
- * Body: { phone, customer_name, order_id, total_amount }
- *
- * The Flutter app (mobile and web) calls this right after an order is placed
- * successfully, passing the WhatsApp number the shopper typed at checkout.
- * The send itself happens in includes/whatsapp-service.php and is
- * best-effort: a WhatsApp failure is reported, never raised as an error.
- */
-route('POST', '/order/success', static function (): void {
-    $phone        = api_input('phone');
-    $customerName = api_input('customer_name');
-    $orderId      = api_input('order_id');
-    $totalAmount  = api_input('total_amount');
-
-    if ($phone === '' || $customerName === '' || $orderId === '' || $totalAmount === '') {
-        api_invalid([
-            'phone'         => $phone === '' ? 'Phone is required.' : null,
-            'customer_name' => $customerName === '' ? 'Customer name is required.' : null,
-            'order_id'      => $orderId === '' ? 'Order id is required.' : null,
-            'total_amount'  => $totalAmount === '' ? 'Total amount is required.' : null,
-        ]);
-    }
-
-    $result = tc_whatsapp_send_order_receipt($phone, $customerName, $orderId, $totalAmount);
-
-    api_ok(
-        ['whatsapp' => $result],
-        $result['sent']
-            ? 'WhatsApp receipt sent.'
-            : 'Order recorded. WhatsApp receipt not sent: ' . ($result['reason'] ?? 'unknown reason.'),
-    );
-});
-
 /**
  * POST /orders/track — Body: { order_number, contact }
  *

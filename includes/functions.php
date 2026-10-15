@@ -304,6 +304,18 @@ function payment_status_color(string $status): string
     };
 }
 
+/** Badge color class for a payment method (used by the confirmation page). */
+function payment_method_color(string $method): string
+{
+    return match (strtolower(trim((string) $method))) {
+        'cod'      => 'blue',
+        'card'     => 'green',
+        'bank'     => 'gold',
+        'paypal'   => 'purple',
+        default    => 'gray',
+    };
+}
+
 /** True when the request is an AJAX/fetch request. */
 function is_ajax(): bool
 {

@@ -3,7 +3,11 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/bootstrap.php';
 
 /* ---------------------------------------------------------------------------
-   Read & validate filters from the query string
+   Ramp to the actual product-fabric/occasion chips the homepage renders (only
+   values that exist in the database are usable, so nothing can be forced: an
+   admin who sets both ?fabric=lawn AND ?fabric=mixed leaves the '?fabric=
+   lawn,mixed' URL when the user opens their shop). Normalise to a single
+   value or an array of ids, then gate every filter on those lists.
 --------------------------------------------------------------------------- */
 $q            = get_string('q', 100);
 $categoryIds  = array_values(array_filter(array_map('intval', (array) ($_GET['category'] ?? []))));
@@ -22,24 +26,79 @@ if (!in_array($sort, ['newest', 'price_low', 'price_high', 'featured', 'best_sel
     $sort = 'newest';
 }
 
-$filters = [
-    'q'             => $q,
-    'category_id'   => $categoryIds ? $categoryIds[0] : 0,
-    'price'         => $price,
-    'fabric'        => $fabric,
-    'color'         => $color,
-    'size'          => $size,
-    'availability'  => $availability,
-    'sale'          => $sale,
-    'featured'      => $featured,
-    'sort'          => $sort,
-    'page'          => $page,
-    'per_page'      => $perPage,
-];
+/* ---------------------------------------------------------------------------
+   Validated filter values (database-driven)
+--------------------------------------------------------------------------- */
+$filters = [];
 
-$result  = get_products($filters);
-$facets  = product_facets();
-$cats    = categories_with_counts();
+// Fabric / colour / size / price / sort: pieces of a multi-select filter bar,
+// not radio buttons. No token (the homepage already passes '?fabric=lawn' for
+// one value) and nothing before validation is trusted.
+$rawFabric = get_string('fabric', 60);
+if ($rawFabric !== '') {
+    $values = array_values(array_filter(array_map('trim', explode(',', $rawFabric))));
+    $values = array_values(array_unique($values));
+    $fabricRows = db()->query(
+        'SELECT DISTINCT fabric FROM products WHERE status = 1 AND fabric IS NOT NULL AND TRIM(fabric) <> \'\' ORDER BY fabric ASC'
+    )->fetchAll();
+    $fabricSet = array_map('strtolower', array_column($fabricRows, 'fabric'));
+    $valid = array_values(array_filter($values, static function (string $v) use ($fabricSet): bool {
+        return in_array(strtolower($v), $fabricSet, true);
+    }));
+    if ($valid) $filters['fabric'] = implode(',', $valid);
+}
+
+$rawColor = get_string('color', 60);
+if ($rawColor !== '') {
+    $values = array_values(array_filter(array_map('trim', explode(',', $rawColor))));
+    $values = array_values(array_unique($values));
+    $colorRows = db()->query(
+        'SELECT DISTINCT color FROM products WHERE status = 1 AND color IS NOT NULL AND TRIM(color) <> \'\' ORDER BY color ASC'
+    )->fetchAll();
+    $colorSet = array_map('strtolower', array_column($colorRows, 'color'));
+    $valid = array_values(array_filter($values, static function (string $v) use ($colorSet): bool {
+        return in_array(strtolower($v), $colorSet, true);
+    }));
+    if ($valid) $filters['color'] = implode(',', $valid);
+}
+
+$rawSize = get_string('size', 40);
+if ($rawSize !== '') {
+    $values = array_values(array_filter(array_map('trim', explode(',', $rawSize))));
+    $values = array_values(array_unique($values));
+    $sizeRows = db()->query(
+        'SELECT DISTINCT size FROM products WHERE status = 1 AND size IS NOT NULL AND TRIM(size) <> \'\' ORDER BY size ASC'
+    )->fetchAll();
+    $sizeSet = array_map('strtolower', array_column($sizeRows, 'size'));
+    $valid = array_values(array_filter($values, static function (string $v) use ($sizeSet): bool {
+        return in_array(strtolower($v), $sizeSet, true);
+    }));
+    if ($valid) $filters['size'] = implode(',', $valid);
+}
+
+if ($price !== '') $filters['price'] = $price;
+
+/* ---------------------------------------------------------------------------
+   Canonical query-string building (kept for links). Every value is already
+   validated, so no 'fabric=lawn,mixed' ever escapes this page consumed by a
+   fetch/SPA client.
+--------------------------------------------------------------------------- */
+$baseQueryParts = [];
+if ($q !== '')            $baseQueryParts['q'] = $q;
+if ($categoryIds)         $baseQueryParts['category'] = implode(',', $categoryIds);
+if (!empty($filters['fabric'])) $baseQueryParts['fabric'] = $filters['fabric'];
+if (!empty($filters['color']))  $baseQueryParts['color']  = $filters['color'];
+if (!empty($filters['size']))   $baseQueryParts['size']   = $filters['size'];
+if ($price !== '')        $baseQueryParts['price'] = $price;
+if ($availability)        $baseQueryParts['availability'] = 'in_stock';
+if ($sale)                $baseQueryParts['sale'] = '1';
+if ($featured)            $baseQueryParts['featured'] = '1';
+if ($sort !== 'newest')   $baseQueryParts['sort'] = $sort;
+$baseQuery = http_build_query($baseQueryParts);
+
+$result = get_products($filters);
+$facets = product_facets();
+$cats   = categories_with_counts();
 
 /* Rebuild the current query string (without page) so links preserve filters. */
 $qsParts = [];
@@ -53,7 +112,7 @@ if ($availability)        $qsParts['availability'] = 'in_stock';
 if ($sale)                $qsParts['sale'] = '1';
 if ($featured)            $qsParts['featured'] = '1';
 if ($sort !== 'newest')   $qsParts['sort'] = $sort;
-$baseQuery = http_build_query($qsParts);
+$baseQuery = http_build_query($baseQueryParts);
 
 /* AJAX request: return only the grid + result count + pagination. */
 if (is_ajax()) {

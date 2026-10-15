@@ -25,6 +25,9 @@ const SETTING_DEFAULTS = [
     'linkedin_url'           => '#',
     'whatsapp_number'        => '+92 334 232 2324',
     'store_status'           => 'open',
+    'sales_tax_rate'         => '0',
+    'price_decimal'          => 'price_decimal',
+    'mobile_api_url'         => 'https://fashlabstudio.mytechrcm.com/api/v1/index.php',
     'meta_description'       => '',
     'footer_credit'          => '',
 ];
@@ -70,4 +73,11 @@ function update_setting(string $key, string $value): void
 function store_is_open(): bool
 {
     return setting('store_status', 'open') !== 'closed';
+}
+
+/** Mobile API base URL (https://fashlabstudio.mytechrcm.com/api/v1/index.php).
+ *  The app reads this from GET /settings so it never needs a hard-coded URL. */
+function mobile_api_url(): string
+{
+    return setting('mobile_api_url', 'https://fashlabstudio.mytechrcm.com/api/v1/index.php');
 }

@@ -36,6 +36,9 @@ require __DIR__ . '/includes/storefront-header.php';
                         <?php foreach ($order['items'] as $item): ?>
                             <div class="summary-row"><span><?= e($item['name']) ?> × <?= (int) $item['qty'] ?></span><strong><?= money((float) $item['price'] * (int) $item['qty']) ?></strong></div>
                         <?php endforeach; ?>
+                        <?php if ((float) $order['tax'] > 0): ?>
+                            <div class="summary-row"><span>Tax (rate set in Settings)</span><strong>+<?= money((float) $order['tax']) ?></strong></div>
+                        <?php endif; ?>
                         <div class="summary-row total"><span>Total</span><strong><?= money((float) $order['total']) ?></strong></div>
                     </div>
 

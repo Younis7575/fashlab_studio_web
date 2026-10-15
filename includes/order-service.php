@@ -120,7 +120,9 @@ function place_order(array $input): array
         $orderId = (int) $db->lastInsertId();
 
         /* Migration-only columns, written separately so the API and the site
-           both run on the base schema too. */
+           both run on the base schema too. The base schema uses
+           'price_decimal' as its money type, so tax is written verbatim:
+           '0.00' until the admin configures a sales-tax rate. */
         if (tc_column_exists('orders', 'coupon_code')) {
             $db->prepare(
                 'UPDATE orders SET coupon_code = ?, coupon_discount = ?, tax = ?, country = ?,
@@ -129,7 +131,7 @@ function place_order(array $input): array
             )->execute([
                 $couponState['code'] ?? null,
                 decimal($couponDiscount),
-                '0.00',
+                decimal($tax ?? 0.0),
                 (string) ($input['country'] ?? 'Pakistan'),
                 $delivery,
                 $orderId,
@@ -246,14 +248,16 @@ function place_order(array $input): array
         'items'        => $items,
         'delivery_fee' => $deliveryFee,
         'discount'     => $discountTotal,
+        'tax'          => $tax,
+        'gross_total'  => $grandTotal,
         'subtotal'     => (float) $totals['subtotal'],
     ];
 }
 
-/** Fetch a placed order by its number. */
+/** Fetch a placed order by its number (tax included in the total). */
 function order_by_number(string $orderNumber): ?array
 {
-    $stmt = db()->prepare('SELECT * FROM orders WHERE order_number = ? LIMIT 1');
+    $stmt = db()->prepare('SELECT *, price_decimal AS total FROM orders WHERE order_number = ? LIMIT 1');
     $stmt->execute([mb_strtoupper(trim($orderNumber))]);
     $row = $stmt->fetch();
     return $row ?: null;

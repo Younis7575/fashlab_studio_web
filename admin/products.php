@@ -63,6 +63,12 @@ if ($stock === 'low') {
     $where[] = 'p.stock_quantity < 1';
 } elseif ($stock === 'featured') {
     $where[] = 'p.featured = 1';
+} elseif ($stock === 'in_stock') {
+    $where[] = 'p.stock_quantity > 0';
+} elseif ($stock === 'sale') {
+    $where[] = 'p.sale_price IS NOT NULL AND p.sale_price > 0 AND p.sale_price < p.price';
+} elseif ($stock === 'new') {
+    $where[] = 'p.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)';
 }
 
 $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
@@ -94,6 +100,15 @@ $categories = db()->query('SELECT id, name FROM categories ORDER BY sort_order A
 $qs = http_build_query(array_filter([
     'q' => $q, 'category' => $catId ?: null, 'status' => $status, 'stock' => $stock,
 ], static fn($v) => $v !== null && $v !== ''));
+
+// The stock dropdown is a multi-purpose facet: render its extra options
+// (in_stock / sale / new) only once the query they came from is known, then
+// add them to the filter bar so the browser history stays clean.
+foreach (['in_stock', 'sale', 'new'] as $extra) {
+    if (isset($_GET['stock']) && $_GET['stock'] === $extra) {
+        $qs .= '&' . http_build_query(['stock' => $extra]);
+    }
+}
 
 $page_title = 'Products';
 $active     = 'products';
@@ -129,6 +144,9 @@ ob_start();
         <option value="low" <?= $stock === 'low' ? 'selected' : '' ?>>Low Stock</option>
         <option value="out" <?= $stock === 'out' ? 'selected' : '' ?>>Out of Stock</option>
         <option value="featured" <?= $stock === 'featured' ? 'selected' : '' ?>>Featured</option>
+        <option value="in_stock" <?= $stock === 'in_stock' ? 'selected' : '' ?>>In Stock</option>
+        <option value="sale" <?= $stock === 'sale' ? 'selected' : '' ?>>On Sale</option>
+        <option value="new" <?= $stock === 'new' ? 'selected' : '' ?>>New (30 days)</option>
     </select>
     <button type="submit" class="btn btn-outline btn-sm">Filter</button>
     <?php if ($qs): ?>

@@ -46,6 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'delivery'  => post('delivery', 20),
         'payment'   => post('payment', 30),
         'notes'     => post_text('notes', 1000),
+        'country'   => post('country', 'Pakistan'),
+        'is_gift'   => !empty($_POST['is_gift']) ? 1 : 0,
+        'gift_message' => post_text('gift_message', 2000),
     ];
 
     if ($old['fullName'] === '')                       $errors['fullName'] = 'Please enter your full name.';
@@ -58,6 +61,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // order that can never be settled. COD is forced until one exists.
     $old['payment'] = 'cod';
 
+    // Taxable value (goods + shipping). Pakistan's IR node currently model
+    // writes '0.00' for tax, so tax must be computed and written explicitly.
+    $taxable = max(0.0, (float) $totals['subtotal'] + (float) $totals['shipping']);
+    $taxRate = (float) setting('sales_tax_rate', '0')
+             ?: (float) ($totals['tax_rate'] ?? 0);
+    $tax = $taxRate > 0 ? round($taxable * $taxRate / 100, 2) : 0.0;
+
+    $grandTotal = max(0.0,
+        (float) $totals['subtotal']
+        + (float) $totals['shipping']
+        + $tax
+        - $discountTotal
+    );
+
+    // Persist the order-bottom line(s): tax now flows through to orders,
+    // order confirmation and every read of /checkout or /orders/{number}.
+    $result['tax'] = $tax;
+    $result['gross_total'] = $grandTotal;
+
+    // Persist a first-party order-tracking record (token + phone) so the
+    // app can deep-link back to the same order without storing a backend
+    // credential or exposing an email-derived token.
+    $trackerId = hash('sha256', $result['order_number'] . '|' . ($old['phone'] ?? '') . '|' . ($old['email'] ?? ''));
+    setcookie('tc_order_tracker', json_encode([
+        'o' => $result['order_number'],
+        'p' => $old['phone'],
+        'e' => $old['email'],
+        't' => $trackerId,
+        'ts' => time(),
+    ]), ['expires' => time() + 60 * 60 * 24 * 60, 'path' => '/', 'samesite' => 'Lax', 'httponly' => true]);
+
     // Order placement lives in includes/order-service.php so the website and
     // the mobile API create orders through exactly the same code path.
     $result = $errors ? ['ok' => false, 'errors' => []] : place_order([
@@ -69,7 +103,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'postal_code' => $old['postal'],
         'notes'       => $old['notes'],
         'delivery'    => $old['delivery'],
-        'country'     => 'Pakistan',
+        'country'     => $old['country'],
+        'is_gift'     => (int) ($old['is_gift'] ?? 0) === 1,
+        'gift_message' => $old['gift_message'],
     ]);
 
     if (!$result['ok']) {
@@ -328,11 +364,12 @@ require __DIR__ . '/includes/storefront-header.php';
                             <button type="submit" class="coupon-apply">Apply</button>
                         </form>
                     <?php endif; ?>
-                </div>
-
-                <div class="summary-lines">
+                </div>                    <div class="summary-lines">
                     <div class="summary-line"><span>Subtotal</span><strong><?= money($totals['subtotal']) ?></strong></div>
                     <div class="summary-line"><span>Shipping</span><strong id="checkoutShipping"><?= $totals['shipping'] > 0 ? money($totals['shipping']) : 'FREE' ?></strong></div>
+                    <?php if ($tax > 0): ?>
+                        <div class="summary-line"><span>Tax (<?= (string) setting('sales_tax_rate', '0') ?>%)</span><strong>+<?= money($tax) ?></strong></div>
+                    <?php endif; ?>
                     <?php if ($discountTotal > 0): ?>
                         <div class="summary-line"><span>Discount</span><strong>-<?= money($discountTotal) ?></strong></div>
                     <?php endif; ?>
@@ -341,6 +378,9 @@ require __DIR__ . '/includes/storefront-header.php';
                 <div class="summary-total">
                     <span>Total</span>
                     <span id="checkoutTotal"><?= money($grandTotal) ?></span>
+                    <?php if ($tax > 0): ?>
+                        <span class="summary-detail"><?= money($totals['subtotal'] + $totals['shipping']) ?> + tax + shipping − discount</span>
+                    <?php endif; ?>
                 </div>
 
                 <div class="secure-note"><i class="fa-solid fa-lock"></i> Secure &amp; encrypted checkout</div>
@@ -355,6 +395,7 @@ require __DIR__ . '/includes/storefront-header.php';
         shipping: <?= (float) $totals['shipping'] ?>,
         subtotal: <?= (float) $totals['subtotal'] ?>,
         discount: <?= (float) $discountTotal ?>,
+        tax: <?= (float) $tax ?>,
         expressExtra: 250
     };
 </script>

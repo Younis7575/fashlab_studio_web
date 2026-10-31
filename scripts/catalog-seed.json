@@ -1,0 +1,473 @@
+{
+ "categories": [
+  {
+   "name": "Unstitched 3 Piece",
+   "slug": "unstitched-3-piece",
+   "description": "Embroidered and printed three-piece unstitched suits."
+  },
+  {
+   "name": "Unstitched 2 Piece",
+   "slug": "unstitched-2-piece",
+   "description": "Elegant two-piece unstitched fabric sets."
+  },
+  {
+   "name": "One Piece Unstitched",
+   "slug": "one-piece-unstitched",
+   "description": "Single-piece unstitched shirt fabric."
+  },
+  {
+   "name": "Ready to Wear",
+   "slug": "ready-to-wear",
+   "description": "Stitched everyday and formal outfits."
+  },
+  {
+   "name": "Western Wear",
+   "slug": "western-wear",
+   "description": "Contemporary tops, sweaters and separates."
+  },
+  {
+   "name": "Co-ord Sets",
+   "slug": "co-ord-sets",
+   "description": "Matching sets styled together."
+  },
+  {
+   "name": "Dupattas & Shawls",
+   "slug": "dupattas-shawls",
+   "description": "Dupattas and shawls to finish the look."
+  },
+  {
+   "name": "Abayas",
+   "slug": "abayas",
+   "description": "Modest, graceful abayas."
+  },
+  {
+   "name": "Bags",
+   "slug": "bags",
+   "description": "Handbags and carry-alls."
+  },
+  {
+   "name": "Fragrances",
+   "slug": "fragrances",
+   "description": "Perfumes and body mists."
+  }
+ ],
+ "collections": [
+  {
+   "name": "Fall Winter",
+   "slug": "fall-winter",
+   "type": "seasonal",
+   "description": "Warm textures and rich colours for the cold season.",
+   "skus": [
+    "FL-U3PESG26V954",
+    "FL-U3PEST26V941",
+    "FL-U2TDDS26V924",
+    "FL-U2TDDS26V923",
+    "FL-0U1SDDS26V94",
+    "FL-0U1SDDS26V95",
+    "FL-3PCCRCSV967D",
+    "FL-3PCCRCSV963D"
+   ]
+  },
+  {
+   "name": "Ready to Wear Edit",
+   "slug": "ready-to-wear-edit",
+   "type": "curated",
+   "description": "Stitched, styled and ready when you are.",
+   "skus": [
+    "FL-2PCSTCRC077S999",
+    "FL-2PCSTCASV996999",
+    "FL-WOTWV1026141999",
+    "FL-WOTWV1026106999",
+    "FL-WBTMV1026018999",
+    "FL-WBTMV1026012999"
+   ]
+  },
+  {
+   "name": "Modest & Accessories",
+   "slug": "modest-accessories",
+   "type": "theme",
+   "description": "Abayas, bags and fragrances to complete every look.",
+   "skus": [
+    "FL-ABBAYAV92614999",
+    "FL-ABBAYAV92624999",
+    "FL-0000HB260138",
+    "FL-0000HB260111",
+    "FL-000000FRL090",
+    "FL-000000FRL091"
+   ]
+  },
+  {
+   "name": "New In",
+   "slug": "new-in",
+   "type": "curated",
+   "description": "The latest arrivals, fresh this season.",
+   "skus": [
+    "FL-U3PESG26V954",
+    "FL-U2TDDS26V924",
+    "FL-0U1SDDS26V94",
+    "FL-2PCSTCRC077S999",
+    "FL-WOTWV1026141999",
+    "FL-WBTMV1026018999",
+    "FL-3PCCRCSV967D",
+    "FL-ABBAYAV92614999",
+    "FL-0000HB260138",
+    "FL-000000FRL090"
+   ]
+  }
+ ],
+ "products": [
+  {
+   "sku": "FL-U3PESG26V954",
+   "name": "Unstitched Light Khaddar Embroidered Mustard 3 Piece Suit",
+   "category": "unstitched-3-piece",
+   "price": 6990.0,
+   "color": "Mustard",
+   "fabric": "Light Khaddar",
+   "short": "Unstitched Light Khaddar Embroidered Mustard 3 Piece Suit — Unstitched 3 Piece",
+   "desc": "Unstitched Light Khaddar Embroidered Mustard 3 Piece Suit. Embroidered and printed three-piece unstitched suits. Premium Pakistani fashion with quality fabric and finishing. Fabric: Light Khaddar. Colour: Mustard.",
+   "images": [
+    "images/catalog/u3pesg26v954-1.jpg",
+    "images/catalog/u3pesg26v954-2.jpg",
+    "images/catalog/u3pesg26v954-3.jpg",
+    "images/catalog/u3pesg26v954-4.jpg"
+   ],
+   "featured": 1,
+   "source": "https://pk.sapphireonline.pk/collections/unstitched/products/U3PESG26V954.html"
+  },
+  {
+   "sku": "FL-U3PEST26V941",
+   "name": "Unstitched Light Khaddar Embroidered Plum 3 Piece Suit",
+   "category": "unstitched-3-piece",
+   "price": 6590.0,
+   "color": "Plum",
+   "fabric": "Light Khaddar",
+   "short": "Unstitched Light Khaddar Embroidered Plum 3 Piece Suit — Unstitched 3 Piece",
+   "desc": "Unstitched Light Khaddar Embroidered Plum 3 Piece Suit. Embroidered and printed three-piece unstitched suits. Premium Pakistani fashion with quality fabric and finishing. Fabric: Light Khaddar. Colour: Plum.",
+   "images": [
+    "images/catalog/u3pest26v941-1.jpg",
+    "images/catalog/u3pest26v941-2.jpg",
+    "images/catalog/u3pest26v941-3.jpg",
+    "images/catalog/u3pest26v941-4.jpg"
+   ],
+   "featured": 0,
+   "source": "https://pk.sapphireonline.pk/collections/unstitched/products/U3PEST26V941.html"
+  },
+  {
+   "sku": "FL-U2TDDS26V924",
+   "name": "Unstitched Cotton Printed Brown 2 Piece Suit",
+   "category": "unstitched-2-piece",
+   "price": 3290.0,
+   "color": "Brown",
+   "fabric": "Cotton",
+   "short": "Unstitched Cotton Printed Brown 2 Piece Suit — Unstitched 2 Piece",
+   "desc": "Unstitched Cotton Printed Brown 2 Piece Suit. Elegant two-piece unstitched fabric sets. Premium Pakistani fashion with quality fabric and finishing. Fabric: Cotton. Colour: Brown.",
+   "images": [
+    "images/catalog/u2tdds26v924-1.jpg",
+    "images/catalog/u2tdds26v924-2.jpg",
+    "images/catalog/u2tdds26v924-3.jpg",
+    "images/catalog/u2tdds26v924-4.jpg"
+   ],
+   "featured": 0,
+   "source": "https://pk.sapphireonline.pk/collections/unstitched/products/U2TDDS26V924.html"
+  },
+  {
+   "sku": "FL-U2TDDS26V923",
+   "name": "Unstitched Cotton Printed Navy Blue 2 Piece Suit",
+   "category": "unstitched-2-piece",
+   "price": 3290.0,
+   "color": "Navy Blue",
+   "fabric": "Cotton",
+   "short": "Unstitched Cotton Printed Navy Blue 2 Piece Suit — Unstitched 2 Piece",
+   "desc": "Unstitched Cotton Printed Navy Blue 2 Piece Suit. Elegant two-piece unstitched fabric sets. Premium Pakistani fashion with quality fabric and finishing. Fabric: Cotton. Colour: Navy Blue.",
+   "images": [
+    "images/catalog/u2tdds26v923-1.jpg",
+    "images/catalog/u2tdds26v923-2.jpg",
+    "images/catalog/u2tdds26v923-3.jpg",
+    "images/catalog/u2tdds26v923-4.jpg"
+   ],
+   "featured": 1,
+   "source": "https://pk.sapphireonline.pk/collections/unstitched/products/U2TDDS26V923.html"
+  },
+  {
+   "sku": "FL-0U1SDDS26V94",
+   "name": "Unstitched Cotton Printed Black & White 1 Piece Suit",
+   "category": "one-piece-unstitched",
+   "price": 1790.0,
+   "color": "Black & White",
+   "fabric": "Cotton",
+   "short": "Unstitched Cotton Printed Black & White 1 Piece Suit — One Piece Unstitched",
+   "desc": "Unstitched Cotton Printed Black & White 1 Piece Suit. Single-piece unstitched shirt fabric. Premium Pakistani fashion with quality fabric and finishing. Fabric: Cotton. Colour: Black & White.",
+   "images": [
+    "images/catalog/0u1sdds26v94-1.jpg",
+    "images/catalog/0u1sdds26v94-2.jpg",
+    "images/catalog/0u1sdds26v94-3.jpg",
+    "images/catalog/0u1sdds26v94-4.jpg"
+   ],
+   "featured": 0,
+   "source": "https://pk.sapphireonline.pk/collections/unstitched/products/0U1SDDS26V94.html"
+  },
+  {
+   "sku": "FL-0U1SDDS26V95",
+   "name": "Unstitched Premium Khaddar Red 1 Piece Suit",
+   "category": "one-piece-unstitched",
+   "price": 1790.0,
+   "color": "Red",
+   "fabric": "Premium Khaddar",
+   "short": "Unstitched Premium Khaddar Red 1 Piece Suit — One Piece Unstitched",
+   "desc": "Unstitched Premium Khaddar Red 1 Piece Suit. Single-piece unstitched shirt fabric. Premium Pakistani fashion with quality fabric and finishing. Fabric: Premium Khaddar. Colour: Red.",
+   "images": [
+    "images/catalog/0u1sdds26v95-1.jpg"
+   ],
+   "featured": 0,
+   "source": "https://pk.sapphireonline.pk/collections/unstitched/products/0U1SDDS26V95.html"
+  },
+  {
+   "sku": "FL-2PCSTCRC077S999",
+   "name": "Bedford Embroidered Green Boxy Shirt",
+   "category": "ready-to-wear",
+   "price": 6990.0,
+   "color": "Green",
+   "fabric": "Bedford",
+   "short": "Bedford Embroidered Green Boxy Shirt — Ready to Wear",
+   "desc": "Bedford Embroidered Green Boxy Shirt. Stitched everyday and formal outfits. Premium Pakistani fashion with quality fabric and finishing. Fabric: Bedford. Colour: Green.",
+   "images": [
+    "images/catalog/2pcstcrc077s_999-1.jpg",
+    "images/catalog/2pcstcrc077s_999-2.jpg",
+    "images/catalog/2pcstcrc077s_999-3.jpg",
+    "images/catalog/2pcstcrc077s_999-4.jpg"
+   ],
+   "featured": 1,
+   "source": "https://pk.sapphireonline.pk/collections/ready-to-wear/products/2PCSTCRC077S_999.html"
+  },
+  {
+   "sku": "FL-2PCSTCASV996999",
+   "name": "Printed Pink Blended Grip 2 Piece Suit",
+   "category": "ready-to-wear",
+   "price": 12990.0,
+   "color": "Pink",
+   "fabric": "Blended Grip",
+   "short": "Printed Pink Blended Grip 2 Piece Suit — Ready to Wear",
+   "desc": "Printed Pink Blended Grip 2 Piece Suit. Stitched everyday and formal outfits. Premium Pakistani fashion with quality fabric and finishing. Fabric: Blended Grip. Colour: Pink.",
+   "images": [
+    "images/catalog/2pcstcasv996_999-1.jpg",
+    "images/catalog/2pcstcasv996_999-2.jpg",
+    "images/catalog/2pcstcasv996_999-3.jpg",
+    "images/catalog/2pcstcasv996_999-4.jpg"
+   ],
+   "featured": 0,
+   "source": "https://pk.sapphireonline.pk/collections/ready-to-wear/products/2PCSTCASV996_999.html"
+  },
+  {
+   "sku": "FL-WOTWV1026141999",
+   "name": "Red Oversized Fleeceback Graphic Sweatshirt",
+   "category": "western-wear",
+   "price": 5490.0,
+   "color": "Red",
+   "fabric": "Fleeceback",
+   "short": "Red Oversized Fleeceback Graphic Sweatshirt — Western Wear",
+   "desc": "Red Oversized Fleeceback Graphic Sweatshirt. Contemporary tops, sweaters and separates. Premium Pakistani fashion with quality fabric and finishing. Fabric: Fleeceback. Colour: Red.",
+   "images": [
+    "images/catalog/wotwv1026141_999-1.jpg",
+    "images/catalog/wotwv1026141_999-2.jpg",
+    "images/catalog/wotwv1026141_999-3.jpg",
+    "images/catalog/wotwv1026141_999-4.jpg"
+   ],
+   "featured": 0,
+   "source": "https://pk.sapphireonline.pk/collections/western-wear/products/WOTWV1026141_999.html"
+  },
+  {
+   "sku": "FL-WOTWV1026106999",
+   "name": "Black Polyester Short Body Tailored Blazer",
+   "category": "western-wear",
+   "price": 14990.0,
+   "color": "Black",
+   "fabric": "Polyester",
+   "short": "Black Polyester Short Body Tailored Blazer — Western Wear",
+   "desc": "Black Polyester Short Body Tailored Blazer. Contemporary tops, sweaters and separates. Premium Pakistani fashion with quality fabric and finishing. Fabric: Polyester. Colour: Black.",
+   "images": [
+    "images/catalog/wotwv1026106_999-1.jpg",
+    "images/catalog/wotwv1026106_999-2.jpg",
+    "images/catalog/wotwv1026106_999-3.jpg",
+    "images/catalog/wotwv1026106_999-4.jpg"
+   ],
+   "featured": 1,
+   "source": "https://pk.sapphireonline.pk/collections/western-wear/products/WOTWV1026106_999.html"
+  },
+  {
+   "sku": "FL-WBTMV1026018999",
+   "name": "Grey Melange Knit Jogger Trousers",
+   "category": "co-ord-sets",
+   "price": 8990.0,
+   "color": "Grey Melange",
+   "fabric": "",
+   "short": "Grey Melange Knit Jogger Trousers — Co-ord Sets",
+   "desc": "Grey Melange Knit Jogger Trousers. Matching sets styled together. Premium Pakistani fashion with quality fabric and finishing. Colour: Grey Melange.",
+   "images": [
+    "images/catalog/wbtmv1026018_999-1.jpg",
+    "images/catalog/wbtmv1026018_999-2.jpg",
+    "images/catalog/wbtmv1026018_999-3.jpg",
+    "images/catalog/wbtmv1026018_999-4.jpg"
+   ],
+   "featured": 0,
+   "source": "https://pk.sapphireonline.pk/collections/western-wear/products/WBTMV1026018_999.html"
+  },
+  {
+   "sku": "FL-WBTMV1026012999",
+   "name": "Blue Pull-On Knit Trousers",
+   "category": "co-ord-sets",
+   "price": 8990.0,
+   "color": "Blue",
+   "fabric": "",
+   "short": "Blue Pull-On Knit Trousers — Co-ord Sets",
+   "desc": "Blue Pull-On Knit Trousers. Matching sets styled together. Premium Pakistani fashion with quality fabric and finishing. Colour: Blue.",
+   "images": [
+    "images/catalog/wbtmv1026012_999-1.jpg",
+    "images/catalog/wbtmv1026012_999-2.jpg",
+    "images/catalog/wbtmv1026012_999-3.jpg",
+    "images/catalog/wbtmv1026012_999-4.jpg"
+   ],
+   "featured": 0,
+   "source": "https://pk.sapphireonline.pk/collections/western-wear/products/WBTMV1026012_999.html"
+  },
+  {
+   "sku": "FL-3PCCRCSV967D",
+   "name": "Poly Viscose Solid Dark Beige Shawl",
+   "category": "dupattas-shawls",
+   "price": 2990.0,
+   "color": "Dark Beige",
+   "fabric": "Poly Viscose",
+   "short": "Poly Viscose Solid Dark Beige Shawl — Dupattas & Shawls",
+   "desc": "Poly Viscose Solid Dark Beige Shawl. Dupattas and shawls to finish the look. Premium Pakistani fashion with quality fabric and finishing. Fabric: Poly Viscose. Colour: Dark Beige.",
+   "images": [
+    "images/catalog/3pccrcsv967d-1.jpg"
+   ],
+   "featured": 1,
+   "source": "https://pk.sapphireonline.pk/collections/ready-to-wear/products/3PCCRCSV967D.html"
+  },
+  {
+   "sku": "FL-3PCCRCSV963D",
+   "name": "Poly Viscose Solid Teal Shawl",
+   "category": "dupattas-shawls",
+   "price": 2990.0,
+   "color": "Teal",
+   "fabric": "Poly Viscose",
+   "short": "Poly Viscose Solid Teal Shawl — Dupattas & Shawls",
+   "desc": "Poly Viscose Solid Teal Shawl. Dupattas and shawls to finish the look. Premium Pakistani fashion with quality fabric and finishing. Fabric: Poly Viscose. Colour: Teal.",
+   "images": [
+    "images/catalog/3pccrcsv963d-1.jpg",
+    "images/catalog/3pccrcsv963d-2.jpg",
+    "images/catalog/3pccrcsv963d-3.jpg"
+   ],
+   "featured": 0,
+   "source": "https://pk.sapphireonline.pk/collections/ready-to-wear/products/3PCCRCSV963D.html"
+  },
+  {
+   "sku": "FL-ABBAYAV92614999",
+   "name": "Polyester Dusty Lilac Regular Abaya Set",
+   "category": "abayas",
+   "price": 13990.0,
+   "color": "Dusty Lilac",
+   "fabric": "Polyester",
+   "short": "Polyester Dusty Lilac Regular Abaya Set — Abayas",
+   "desc": "Polyester Dusty Lilac Regular Abaya Set. Modest, graceful abayas. Premium Pakistani fashion with quality fabric and finishing. Fabric: Polyester. Colour: Dusty Lilac.",
+   "images": [
+    "images/catalog/abbayav92614_999-1.jpg",
+    "images/catalog/abbayav92614_999-2.jpg",
+    "images/catalog/abbayav92614_999-3.jpg",
+    "images/catalog/abbayav92614_999-4.jpg"
+   ],
+   "featured": 0,
+   "source": "https://pk.sapphireonline.pk/collections/modest-wear/products/ABBAYAV92614_999.html"
+  },
+  {
+   "sku": "FL-ABBAYAV92624999",
+   "name": "Polyester Mint Green Raglan Abaya Set",
+   "category": "abayas",
+   "price": 9990.0,
+   "color": "Mint Green",
+   "fabric": "Polyester",
+   "short": "Polyester Mint Green Raglan Abaya Set — Abayas",
+   "desc": "Polyester Mint Green Raglan Abaya Set. Modest, graceful abayas. Premium Pakistani fashion with quality fabric and finishing. Fabric: Polyester. Colour: Mint Green.",
+   "images": [
+    "images/catalog/abbayav92624_999-1.jpg",
+    "images/catalog/abbayav92624_999-2.jpg",
+    "images/catalog/abbayav92624_999-3.jpg",
+    "images/catalog/abbayav92624_999-4.jpg"
+   ],
+   "featured": 1,
+   "source": "https://pk.sapphireonline.pk/collections/modest-wear/products/ABBAYAV92624_999.html"
+  },
+  {
+   "sku": "FL-0000HB260138",
+   "name": "Dark Blue Short Handle Bag With Zip Closure",
+   "category": "bags",
+   "price": 6490.0,
+   "color": "Dark Blue",
+   "fabric": "",
+   "short": "Dark Blue Short Handle Bag With Zip Closure — Bags",
+   "desc": "Dark Blue Short Handle Bag With Zip Closure. Handbags and carry-alls. Premium Pakistani fashion with quality fabric and finishing. Colour: Dark Blue.",
+   "images": [
+    "images/catalog/0000hb260138-1.jpg",
+    "images/catalog/0000hb260138-2.jpg",
+    "images/catalog/0000hb260138-3.jpg",
+    "images/catalog/0000hb260138-4.jpg"
+   ],
+   "featured": 0,
+   "source": "https://pk.sapphireonline.pk/collections/accessories/products/0000HB260138.html"
+  },
+  {
+   "sku": "FL-0000HB260111",
+   "name": "Brown Shoulder Tote Bag",
+   "category": "bags",
+   "price": 6490.0,
+   "color": "Brown",
+   "fabric": "",
+   "short": "Brown Shoulder Tote Bag — Bags",
+   "desc": "Brown Shoulder Tote Bag. Handbags and carry-alls. Premium Pakistani fashion with quality fabric and finishing. Colour: Brown.",
+   "images": [
+    "images/catalog/0000hb260111-1.jpg",
+    "images/catalog/0000hb260111-2.jpg",
+    "images/catalog/0000hb260111-3.jpg",
+    "images/catalog/0000hb260111-4.jpg"
+   ],
+   "featured": 0,
+   "source": "https://pk.sapphireonline.pk/collections/accessories/products/0000HB260111.html"
+  },
+  {
+   "sku": "FL-000000FRL090",
+   "name": "Rouge 100ml Perfume",
+   "category": "fragrances",
+   "price": 6990.0,
+   "color": "",
+   "fabric": "",
+   "short": "Rouge 100ml Perfume — Fragrances",
+   "desc": "Rouge 100ml Perfume. Perfumes and body mists. Premium Pakistani fashion with quality fabric and finishing.",
+   "images": [
+    "images/catalog/000000frl090-1.jpg",
+    "images/catalog/000000frl090-2.jpg",
+    "images/catalog/000000frl090-3.jpg",
+    "images/catalog/000000frl090-4.jpg"
+   ],
+   "featured": 1,
+   "source": "https://pk.sapphireonline.pk/collections/fragrances/products/000000FRL090.html"
+  },
+  {
+   "sku": "FL-000000FRL091",
+   "name": "Caramel Candy 100 ml Perfume",
+   "category": "fragrances",
+   "price": 3990.0,
+   "color": "",
+   "fabric": "",
+   "short": "Caramel Candy 100 ml Perfume — Fragrances",
+   "desc": "Caramel Candy 100 ml Perfume. Perfumes and body mists. Premium Pakistani fashion with quality fabric and finishing.",
+   "images": [
+    "images/catalog/000000frl091-1.jpg",
+    "images/catalog/000000frl091-2.jpg",
+    "images/catalog/000000frl091-3.jpg",
+    "images/catalog/000000frl091-4.jpg"
+   ],
+   "featured": 0,
+   "source": "https://pk.sapphireonline.pk/collections/fragrances/products/000000FRL091.html"
+  }
+ ]
+}

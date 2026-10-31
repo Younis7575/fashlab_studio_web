@@ -115,3 +115,8 @@ ErrorDocument 500 /500.php
     ExpiresByType text/css "access plus 7 days"
     ExpiresByType application/javascript "access plus 7 days"
 </IfModule>
+
+# --- Compression (API JSON, HTML, CSS, JS) -------------------------------------
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE application/json text/html text/css application/javascript image/svg+xml text/plain
+</IfModule>

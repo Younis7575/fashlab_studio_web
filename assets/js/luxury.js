@@ -105,8 +105,8 @@
                 ctx.beginPath();
                 ctx.arc(px, py, p.r, 0, Math.PI * 2);
                 ctx.fillStyle = p.warm
-                    ? 'rgba(201, 169, 106,' + alpha.toFixed(3) + ')'
-                    : 'rgba(226, 214, 194,' + (alpha * 0.9).toFixed(3) + ')';
+                    ? 'rgba(136, 32, 56,' + alpha.toFixed(3) + ')'
+                    : 'rgba(226, 194, 201,' + (alpha * 0.9).toFixed(3) + ')';
                 ctx.fill();
             }
             requestAnimationFrame(frame);
@@ -182,10 +182,10 @@
             }
             ctx.closePath();
             var g = ctx.createLinearGradient(0, yBase - amp, W, yBase + thickness + amp);
-            g.addColorStop(0, 'rgba(232, 217, 189, 0)');
+            g.addColorStop(0, 'rgba(231, 190, 200, 0)');
             g.addColorStop(0.35, hue[0]);
             g.addColorStop(0.7, hue[1]);
-            g.addColorStop(1, 'rgba(201, 169, 106, 0)');
+            g.addColorStop(1, 'rgba(136, 32, 56, 0)');
             ctx.fillStyle = g;
             ctx.fill();
         }
@@ -200,9 +200,9 @@
             ctx.save();
             ctx.translate(shift, 0);
 
-            band(t, H * 0.055, H * 0.30, H * 0.13, ['rgba(226,206,168,.42)', 'rgba(240,230,212,.30)']);
-            band(t * 0.85 + 1.7, H * 0.07, H * 0.52, H * 0.16, ['rgba(201,169,106,.30)', 'rgba(233,220,198,.36)']);
-            band(t * 1.15 + 3.4, H * 0.05, H * 0.72, H * 0.11, ['rgba(246,238,234,.5)', 'rgba(219,201,166,.3)']);
+            band(t, H * 0.055, H * 0.30, H * 0.13, ['rgba(223, 171, 183,.42)', 'rgba(239, 213, 219,.30)']);
+            band(t * 0.85 + 1.7, H * 0.07, H * 0.52, H * 0.16, ['rgba(136, 32, 56,.30)', 'rgba(233, 198, 206,.36)']);
+            band(t * 1.15 + 3.4, H * 0.05, H * 0.72, H * 0.11, ['rgba(246, 234, 237,.5)', 'rgba(219, 166, 178,.3)']);
 
             ctx.restore();
             requestAnimationFrame(frame);
@@ -561,14 +561,14 @@
             camera.position.set(0, 0, 10);
 
             /* champagne lighting — key-dominant so 3D forms shade visibly */
-            scene.add(new THREE.AmbientLight(0xfff8ee, 0.72));
-            var key = new THREE.DirectionalLight(0xf9ecd2, 1.35);
+            scene.add(new THREE.AmbientLight(0xfaf3f4, 0.72));
+            var key = new THREE.DirectionalLight(0xf1dadf, 1.35);
             key.position.set(5, 7, 6);
             scene.add(key);
-            var rim = new THREE.DirectionalLight(0xd9b978, 0.5);
+            var rim = new THREE.DirectionalLight(0x882038, 0.5);
             rim.position.set(-7, -4, 3);
             scene.add(rim);
-            var glow = new THREE.PointLight(0xf3dfb6, 0.65, 40);
+            var glow = new THREE.PointLight(0xe8c1ca, 0.65, 40);
             glow.position.set(0, 2.5, 7);
             scene.add(glow);
 
@@ -587,11 +587,11 @@
             }
             var segX = tier === 'low' ? 30 : 60;
             var segY = tier === 'low' ? 8 : 14;
-            var silkA = makeSilk(11.5, 2.7, segX, segY, 0xd9bd8a, 0.62);
+            var silkA = makeSilk(11.5, 2.7, segX, segY, 0x882038, 0.62);
             silkA.position.set(0.5, 2.4, -3.8);
             silkA.rotation.set(-0.3, 0, -0.1);
             world.add(silkA);
-            var silkB = makeSilk(9.5, 2.1, segX, segY, 0xf2e4cf, 0.55);
+            var silkB = makeSilk(9.5, 2.1, segX, segY, 0xeed3d9, 0.55);
             silkB.position.set(-0.5, -2.8, -4);
             silkB.rotation.set(0.26, 0, 0.09);
             world.add(silkB);
@@ -623,7 +623,7 @@
             var ribbon = new THREE.Mesh(
                 new THREE.TubeGeometry(new THREE.CatmullRomCurve3(ribbonPts), 140, 0.12, 8, false),
                 new THREE.MeshStandardMaterial({
-                    color: 0xd2af72, metalness: 0.4, roughness: 0.4,
+                    color: 0x882038, metalness: 0.4, roughness: 0.4,
                     transparent: true, opacity: 0.85
                 })
             );
@@ -632,10 +632,10 @@
 
             /* --- transparent glass forms --- */
             var glassMat = new THREE.MeshPhysicalMaterial({
-                color: 0xf7f2ea, metalness: 0.05, roughness: 0.08,
+                color: 0xf7eaed, metalness: 0.05, roughness: 0.08,
                 transparent: true, opacity: 0.4, clearcoat: 0.6, clearcoatRoughness: 0.15
             });
-            var edgeMat = new THREE.LineBasicMaterial({ color: 0xb9975a, transparent: true, opacity: 0.75 });
+            var edgeMat = new THREE.LineBasicMaterial({ color: 0x882038, transparent: true, opacity: 0.75 });
             var icoGeo = new THREE.IcosahedronGeometry(1.15, 0);
             var ico = new THREE.Group();
             ico.add(new THREE.Mesh(icoGeo, glassMat));
@@ -650,7 +650,7 @@
 
             var ring = new THREE.Mesh(
                 new THREE.TorusGeometry(1.0, 0.045, 10, 64),
-                new THREE.MeshStandardMaterial({ color: 0xc9a96a, metalness: 0.7, roughness: 0.3 })
+                new THREE.MeshStandardMaterial({ color: 0x882038, metalness: 0.7, roughness: 0.3 })
             );
             ring.position.set(5.1, 2.7, -4.4);
             ring.rotation.set(0.9, 0.4, 0);
@@ -661,7 +661,7 @@
             var cardMat = new THREE.MeshStandardMaterial({
                 color: 0xfffdf8, metalness: 0.05, roughness: 0.6, transparent: true, opacity: 0.95
             });
-            var cardEdgeMat = new THREE.MeshStandardMaterial({ color: 0xc9a96a, metalness: 0.5, roughness: 0.4 });
+            var cardEdgeMat = new THREE.MeshStandardMaterial({ color: 0x882038, metalness: 0.5, roughness: 0.4 });
             var cardSpots = tier === 'low'
                 ? [[-5.0, 2.7, -3.6], [5.2, -1.4, -4.2]]
                 : [[-5.2, 2.8, -3.6], [5.3, -1.4, -4.2], [-5.5, -2.4, -3.2]];
@@ -681,7 +681,7 @@
 
             /* --- pearl accents --- */
             var pearls = [];
-            var pearlMat = new THREE.MeshStandardMaterial({ color: 0xf3e8dc, metalness: 0.35, roughness: 0.25 });
+            var pearlMat = new THREE.MeshStandardMaterial({ color: 0xf2dde2, metalness: 0.35, roughness: 0.25 });
             var pearlSpots = [[-3.4, -1.6, -1.8, 0.16], [3.6, 1.8, -2.2, 0.12], [1.8, -2.6, -1.2, 0.1]];
             for (var pI = 0; pI < pearlSpots.length; pI++) {
                 var pl = new THREE.Mesh(new THREE.SphereGeometry(pearlSpots[pI][3], 18, 14), pearlMat);
@@ -702,7 +702,7 @@
             }
             pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
             var dust = new THREE.Points(pGeo, new THREE.PointsMaterial({
-                color: 0xc9a96a, size: 0.055, transparent: true, opacity: 0.65, sizeAttenuation: true
+                color: 0x882038, size: 0.055, transparent: true, opacity: 0.65, sizeAttenuation: true
             }));
             scene.add(dust);
 
@@ -844,11 +844,11 @@
             camera.position.set(0, 0, 9);
 
             /* --- champagne lighting --- */
-            scene.add(new THREE.AmbientLight(0xfff6e8, 0.85));
-            var key = new THREE.DirectionalLight(0xf3e3c4, 1.05);
+            scene.add(new THREE.AmbientLight(0xf9eef1, 0.85));
+            var key = new THREE.DirectionalLight(0xebccd3, 1.05);
             key.position.set(4, 6, 8);
             scene.add(key);
-            var rim = new THREE.DirectionalLight(0xc9a96a, 0.55);
+            var rim = new THREE.DirectionalLight(0x882038, 0.55);
             rim.position.set(-6, -3, 4);
             scene.add(rim);
 
@@ -868,7 +868,7 @@
             var curve = new THREE.CatmullRomCurve3(ribbonPts);
             var tubeGeo = new THREE.TubeGeometry(curve, 180, 0.16, 10, false);
             var tubeMat = new THREE.MeshStandardMaterial({
-                color: 0xd9bd8a, metalness: 0.32, roughness: 0.42,
+                color: 0x882038, metalness: 0.32, roughness: 0.42,
                 transparent: true, opacity: 0.9
             });
             var ribbon = new THREE.Mesh(tubeGeo, tubeMat);
@@ -876,7 +876,7 @@
 
             var ribbon2 = new THREE.Mesh(
                 new THREE.TubeGeometry(curve, 180, 0.07, 8, false),
-                new THREE.MeshStandardMaterial({ color: 0xf0e6d4, metalness: 0.2, roughness: 0.5, transparent: true, opacity: 0.75 })
+                new THREE.MeshStandardMaterial({ color: 0xefd5db, metalness: 0.2, roughness: 0.5, transparent: true, opacity: 0.75 })
             );
             ribbon2.position.y = -1.6;
             ribbon2.rotation.z = 0.18;
@@ -888,7 +888,7 @@
                 color: 0xfffdf9, metalness: 0.05, roughness: 0.65,
                 transparent: true, opacity: 0.96
             });
-            var edgeMat = new THREE.MeshStandardMaterial({ color: 0xc9a96a, metalness: 0.5, roughness: 0.4 });
+            var edgeMat = new THREE.MeshStandardMaterial({ color: 0x882038, metalness: 0.5, roughness: 0.4 });
             for (var c = 0; c < 5; c++) {
                 var cw = 1.15, ch = 1.55;
                 var geo = new THREE.BoxGeometry(cw, ch, 0.05);
@@ -909,12 +909,12 @@
             var hanger = new THREE.Group();
             var hook = new THREE.Mesh(
                 new THREE.TorusGeometry(0.3, 0.035, 8, 40, Math.PI * 1.4),
-                new THREE.MeshStandardMaterial({ color: 0xc9a96a, metalness: 0.7, roughness: 0.3 })
+                new THREE.MeshStandardMaterial({ color: 0x882038, metalness: 0.7, roughness: 0.3 })
             );
             hook.position.y = 0.62;
             hanger.add(hook);
             var barGeo = new THREE.CylinderGeometry(0.028, 0.028, 2.4, 8);
-            var barMat = new THREE.MeshStandardMaterial({ color: 0xb99a63, metalness: 0.6, roughness: 0.35 });
+            var barMat = new THREE.MeshStandardMaterial({ color: 0x882038, metalness: 0.6, roughness: 0.35 });
             var bar1 = new THREE.Mesh(barGeo, barMat);
             bar1.rotation.z = Math.PI / 2.6; bar1.position.set(-0.56, 0.1, 0);
             var bar2 = new THREE.Mesh(barGeo, barMat);
@@ -930,11 +930,11 @@
             var bottle = new THREE.Group();
             var body = new THREE.Mesh(
                 new THREE.CylinderGeometry(0.42, 0.46, 1.0, 24),
-                new THREE.MeshStandardMaterial({ color: 0xf6eeea, metalness: 0.1, roughness: 0.25, transparent: true, opacity: 0.9 })
+                new THREE.MeshStandardMaterial({ color: 0xf6eaed, metalness: 0.1, roughness: 0.25, transparent: true, opacity: 0.9 })
             );
             var neck = new THREE.Mesh(
                 new THREE.CylinderGeometry(0.14, 0.16, 0.3, 16),
-                new THREE.MeshStandardMaterial({ color: 0xc9a96a, metalness: 0.75, roughness: 0.28 })
+                new THREE.MeshStandardMaterial({ color: 0x882038, metalness: 0.75, roughness: 0.28 })
             );
             neck.position.y = 0.65;
             bottle.add(body); bottle.add(neck);
@@ -952,7 +952,7 @@
             }
             pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
             var points = new THREE.Points(pGeo, new THREE.PointsMaterial({
-                color: 0xc9a96a, size: 0.05, transparent: true, opacity: 0.7, sizeAttenuation: true
+                color: 0x882038, size: 0.05, transparent: true, opacity: 0.7, sizeAttenuation: true
             }));
             scene.add(points);
 

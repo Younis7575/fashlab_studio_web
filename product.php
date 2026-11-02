@@ -299,7 +299,7 @@ require __DIR__ . '/includes/storefront-header.php';
                             <button type="button"
                                     class="color-option<?= $ci === 0 ? ' active' : '' ?> color-swatch"
                                     data-color="<?= e($col) ?>"
-                                    style="background-color: <?= e(strtolower($col) === 'black' ? '#1a1a1a' : (strtolower($col) === 'white' ? '#f4f4f4' : '#b98d6f')) ?>"
+                                    style="background-color: <?= e(strtolower($col) === 'black' ? '#1a1a1a' : (strtolower($col) === 'white' ? '#f4f4f4' : '#882038')) ?>"
                                     aria-label="<?= e($col) ?>"></button>
                         <?php endforeach; ?>
                     </div>

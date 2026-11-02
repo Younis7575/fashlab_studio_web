@@ -13,13 +13,13 @@
     --primary-dark: #3f0719;
     --primary-light: #7f3248;
 
-    --cream: #f8f4ee;
-    --cream-dark: #eee7dd;
+    --cream: #f8eef0;
+    --cream-dark: #eedde1;
     --white: #ffffff;
 
     --text: #242020;
     --text-light: #6e6662;
-    --border: #e4ddd5;
+    --border: #e4d5d8;
 
     --gold: #5a1424;
 
@@ -133,7 +133,7 @@ ul {
     top: 0;
     z-index: 1000;
     background: rgba(255, 255, 255, 0.97);
-    border-bottom: 1px solid rgba(228, 221, 213, 0.8);
+    border-bottom: 1px solid rgba(228, 213, 216, 0.8);
     backdrop-filter: blur(12px);
 }
 
@@ -743,7 +743,7 @@ ul {
 }
 
 .shop-hero .section-label {
-    color: #f3d9b0;
+    color: #e6bdc6;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 2.5px;
@@ -933,7 +933,7 @@ ul {
     position: relative;
     aspect-ratio: 0.78;
     overflow: hidden;
-    background: #f1e9e1;
+    background: #f1e1e5;
 }
 
 .product-thumb img {
@@ -1070,7 +1070,7 @@ ul {
     position: relative;
     aspect-ratio: 0.78;
     overflow: hidden;
-    background: #f0e9e1;
+    background: #f0e1e4;
 }
 
 .product-main-image img {
@@ -1131,7 +1131,7 @@ ul {
 
 .discount {
     padding: 4px 7px;
-    background: #ead9c7;
+    background: #eac7cf;
     color: var(--primary-dark);
     font-size: 10px;
     font-weight: 700;
@@ -1182,7 +1182,7 @@ ul {
 
 .color-option.black { background: #252221; }
 .color-option.maroon { background: var(--primary); }
-.color-option.beige { background: #cbb89b; }
+.color-option.beige { background: #882038; }
 
 .size-option {
     min-width: 46px;
@@ -1467,7 +1467,7 @@ ul {
 }
 
 .newsletter-content .section-label {
-    color: #e8cda5;
+    color: #e0adb9;
 }
 
 .newsletter-content h2 {
@@ -2154,8 +2154,8 @@ ul {
     background:
         linear-gradient(
             90deg,
-            rgba(28,23,20,.78),
-            rgba(28,23,20,.25)
+            rgba(28, 20, 22,.78),
+            rgba(28, 20, 22,.25)
         );
 }
 
@@ -2215,7 +2215,7 @@ ul {
 .collections-intro .section-label {
     margin-bottom: 13px;
 
-    color: #92715f;
+    color: #925f6b;
 
     font-size: 10px;
     font-weight: 700;
@@ -2228,7 +2228,7 @@ ul {
 
     font-family: "Playfair Display", serif;
 
-    color: #292420;
+    color: #292022;
 
     font-size: clamp(34px, 5vw, 50px);
 }
@@ -2269,7 +2269,7 @@ ul {
 
     overflow: hidden;
 
-    background: #eee9e4;
+    background: #eee4e6;
 }
 
 .collection-card.collection-large {
@@ -2408,13 +2408,13 @@ ul {
 
     text-align: center;
 
-    background: #f3eee8;
+    background: #f3e8eb;
 }
 
 .collections-cta .section-label {
     margin-bottom: 14px;
 
-    color: #8e6958;
+    color: #8e5864;
 
     font-size: 10px;
 
@@ -2426,7 +2426,7 @@ ul {
 .collections-cta h2 {
     margin: 0 0 30px;
 
-    color: #292420;
+    color: #292022;
 
     font-family: "Playfair Display", serif;
 
@@ -2444,7 +2444,7 @@ ul {
 
     padding: 14px 25px;
 
-    background: #292420;
+    background: #292022;
 
     color: #fff;
 
@@ -2590,7 +2590,7 @@ ul {
 }
 
 .about-hero-content .section-label {
-    color: #e8cda5;
+    color: #e0adb9;
     margin-bottom: 18px;
 }
 

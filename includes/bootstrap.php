@@ -15,9 +15,9 @@ if (!defined('TC_CONFIG_LOADED')) {
         http_response_code(500);
         header('Content-Type: text/html; charset=utf-8');
         echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Setup Required</title>'
-           . '<style>body{font-family:sans-serif;background:#faf7f4;color:#3b2b26;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}'
-           . '.card{max-width:560px;padding:48px;background:#fff;border:1px solid #e7ddd4;border-radius:8px}'
-           . 'h1{font-size:24px;margin:0 0 12px}code{background:#f3ece5;padding:2px 6px;border-radius:4px}</style></head>'
+           . '<style>body{font-family:sans-serif;background:#faf4f5;color:#3b2b26;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}'
+           . '.card{max-width:560px;padding:48px;background:#fff;border:1px solid #e7d4d8;border-radius:8px}'
+           . 'h1{font-size:24px;margin:0 0 12px}code{background:#f3e5e8;padding:2px 6px;border-radius:4px}</style></head>'
            . '<body><div class="card"><h1>Configuration required</h1>'
            . '<p>Copy <code>config/config.example.php</code> to <code>config/config.php</code> and enter your database '
            . 'credentials. See <code>SETUP.md</code> for full installation instructions.</p></div></body></html>';

@@ -30,7 +30,7 @@ require __DIR__ . '/includes/storefront-header.php';
         display: flex; flex-wrap: wrap; gap: 10px 26px; align-items: center;
         margin: 26px 0 10px; padding: 14px 20px;
         background: var(--surface, #fff);
-        border: 1px solid var(--line, #e9e1d6);
+        border: 1px solid var(--line, #e9d6da);
         border-radius: 14px;
         font-size: 13.5px; color: var(--muted, #6b5f58);
     }
@@ -41,11 +41,11 @@ require __DIR__ . '/includes/storefront-header.php';
     }
     .legal-card {
         background: var(--surface, #fff);
-        border: 1px solid var(--line, #e9e1d6);
+        border: 1px solid var(--line, #e9d6da);
         border-radius: 18px; padding: clamp(22px, 4vw, 40px);
         margin-top: 18px;
     }
-    .legal-card section + section { margin-top: 34px; padding-top: 30px; border-top: 1px solid var(--line, #e9e1d6); }
+    .legal-card section + section { margin-top: 34px; padding-top: 30px; border-top: 1px solid var(--line, #e9d6da); }
     .legal-card h2 {
         font-size: 19px; font-weight: 800; letter-spacing: .3px;
         color: var(--maroon, #6b2233); margin: 0 0 12px;
@@ -69,8 +69,8 @@ require __DIR__ . '/includes/storefront-header.php';
     .legal-contact a {
         display: flex; align-items: center; gap: 12px;
         padding: 14px 16px; border-radius: 14px;
-        border: 1px solid var(--line, #e9e1d6);
-        background: var(--ivory, #faf7f3);
+        border: 1px solid var(--line, #e9d6da);
+        background: var(--ivory, #faf3f5);
         text-decoration: none !important;
         font-size: 14px; color: var(--ink, #261a1e) !important;
         transition: box-shadow .2s ease, transform .2s ease;

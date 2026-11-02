@@ -17,8 +17,8 @@ const OUT = path.resolve(__dirname, '..', 'assets', 'lottie');
 const W = 120, H = 120, FPS = 60, OP = 180; // 3s loop
 
 /* champagne / charcoal palette */
-const GOLD = [0.663, 0.533, 0.314, 1];   // #a9884f
-const GOLD_L = [0.788, 0.663, 0.416, 1]; // #c9a96a
+const GOLD = [0.353, 0.078, 0.141, 1];   // #5a1424
+const GOLD_L = [0.498, 0.196, 0.282, 1]; // #7f3248
 const INK = [0.129, 0.114, 0.102, 1];    // #211d1a
 
 function layer(name, shapes, opts) {

@@ -55,7 +55,7 @@ require __DIR__ . '/includes/storefront-header.php';
     .mo-card {
         display: flex; align-items: center; gap: 18px;
         background: var(--surface, #fff);
-        border: 1px solid var(--line, #e9e1d6);
+        border: 1px solid var(--line, #e9d6da);
         border-radius: 16px; padding: 20px 22px;
         transition: box-shadow .25s ease, transform .25s ease;
     }
@@ -76,7 +76,7 @@ require __DIR__ . '/includes/storefront-header.php';
         font-size: 10px; font-weight: 800; letter-spacing: 1.2px;
         text-transform: uppercase; padding: 4px 11px; border-radius: 999px;
     }
-    .mo-badge.is-pending   { background: rgba(201,138,23,.13); color: #8a6114; }
+    .mo-badge.is-pending   { background: rgba(91, 21, 37,.13); color: #5b1525; }
     .mo-badge.is-confirmed,
     .mo-badge.is-processing{ background: rgba(29,95,168,.12); color: #1d5fa8; }
     .mo-badge.is-shipped   { background: rgba(29,95,168,.12); color: #1d5fa8; }
@@ -85,7 +85,7 @@ require __DIR__ . '/includes/storefront-header.php';
     .mo-unknown            { background: rgba(111,103,94,.12); color: #6f675e; }
     .mo-empty {
         text-align: center; padding: 70px 24px;
-        border: 1px dashed var(--line, #e9e1d6); border-radius: 20px;
+        border: 1px dashed var(--line, #e9d6da); border-radius: 20px;
         background: var(--surface, #fff);
     }
     .mo-empty .fa-solid { font-size: 40px; color: #800c26; opacity: .5; }

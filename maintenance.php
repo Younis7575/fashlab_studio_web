@@ -11,11 +11,11 @@ header('Content-Type: text/html; charset=utf-8');
     <title>We'll Be Right Back | Fashlab Studio</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #faf7f4; color: #3b2b26; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #faf4f5; color: #3b2b26; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
         .card { max-width: 560px; padding: 56px 40px; text-align: center; }
         .icon { font-size: 48px; margin-bottom: 16px; }
         h1 { font-family: Georgia, serif; font-size: 32px; margin-bottom: 12px; }
-        p { line-height: 1.7; color: #6b5a52; }
+        p { line-height: 1.7; color: #6b5258; }
     </style>
 </head>
 <body>

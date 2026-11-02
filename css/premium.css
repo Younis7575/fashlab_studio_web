@@ -28,10 +28,10 @@
     --text-light:     #6f6669;
     --text-muted:     #948b8e;
 
-    --cream:          #faf7f3;
-    --cream-dark:     #f0e9e0;
-    --border:         #e8e0d8;
-    --border-strong:  #d8cec3;
+    --cream:          #faf3f5;
+    --cream-dark:     #f0e0e4;
+    --border:         #e8d8dc;
+    --border-strong:  #d8c3c8;
 
     --success:        #2f7a51;
     --whatsapp:       #25d366;
@@ -2292,7 +2292,7 @@ body {
 /* --- Product cards: refined shadow layers ---------------------------------- */
 .product-card {
     background: #fff;
-    border: 1px solid rgba(232, 224, 216, .6);
+    border: 1px solid rgba(232, 216, 220, .6);
 }
 
 .product-card:hover {
@@ -2426,7 +2426,7 @@ a.btn:focus-visible {
 }
 
 .announcement-bar p {
-    color: #f6e9d4;
+    color: #f1d9df;
     letter-spacing: .12em;
     text-transform: uppercase;
     font-size: 11px;

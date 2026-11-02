@@ -17,21 +17,21 @@
     --primary:        #5e0b27;
     --primary-dark:   #47131f;
     --primary-light:  #7f3248;
-    --primary-tint:   #f6eef0;
+    --primary-tint:   #faf8f9;
 
     --gold:           #5a1424;
-    --gold-light:     #e9c7d0;
-    --gold-tint:      #f6eef0;
+    --gold-light:     #f2e9eb;
+    --gold-tint:      #faf8f9;
 
     --ink:            #1a1416;
     --text:           #2a2224;
     --text-light:     #6f6669;
     --text-muted:     #948b8e;
 
-    --cream:          #faf3f5;
-    --cream-dark:     #f0e0e4;
-    --border:         #e8d8dc;
-    --border-strong:  #d8c3c8;
+    --cream:          #fcfafb;
+    --cream-dark:     #f7f3f4;
+    --border:         #f3eff0;
+    --border-strong:  #ebe6e7;
 
     --success:        #2f7a51;
     --whatsapp:       #25d366;
@@ -1045,7 +1045,7 @@ textarea:focus {
     transition: background .2s var(--ease), color .2s var(--ease);
 }
 
-.cart-remove:hover { background: #fdecea; color: #b3261e; }
+.cart-remove:hover { background: #fcf8f7; color: #b3261e; }
 
 .cart-actions {
     display: flex;
@@ -1421,7 +1421,7 @@ textarea:focus {
     font-size: 14px;
 }
 
-.flash-error   { background: #fdecea; border-left: 3px solid #b3261e; color: #7a1c17; }
+.flash-error   { background: #fcf8f7; border-left: 3px solid #b3261e; color: #7a1c17; }
 .flash-success { background: #e9f6ee; border-left: 3px solid var(--success); color: #1d5636; }
 
 /* --- order confirmation -------------------------------------------------- */
@@ -2292,7 +2292,7 @@ body {
 /* --- Product cards: refined shadow layers ---------------------------------- */
 .product-card {
     background: #fff;
-    border: 1px solid rgba(232, 216, 220, .6);
+    border: 1px solid rgba(243, 239, 240, .6);
 }
 
 .product-card:hover {
@@ -2426,7 +2426,7 @@ a.btn:focus-visible {
 }
 
 .announcement-bar p {
-    color: #f1d9df;
+    color: #f6f0f2;
     letter-spacing: .12em;
     text-transform: uppercase;
     font-size: 11px;
@@ -2512,7 +2512,7 @@ a.btn:focus-visible {
 .nav-actions .cart-count,
 .nav-actions .wishlist-count {
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    box-shadow: 0 0 0 1.5px rgba(233,199,208, .8);
+    box-shadow: 0 0 0 1.5px rgba(242, 233, 235, .8);
     font-weight: 700;
 }
 

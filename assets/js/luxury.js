@@ -106,7 +106,7 @@
                 ctx.arc(px, py, p.r, 0, Math.PI * 2);
                 ctx.fillStyle = p.warm
                     ? 'rgba(136, 32, 56,' + alpha.toFixed(3) + ')'
-                    : 'rgba(226, 194, 201,' + (alpha * 0.9).toFixed(3) + ')';
+                    : 'rgba(239, 231, 233,' + (alpha * 0.9).toFixed(3) + ')';
                 ctx.fill();
             }
             requestAnimationFrame(frame);
@@ -182,7 +182,7 @@
             }
             ctx.closePath();
             var g = ctx.createLinearGradient(0, yBase - amp, W, yBase + thickness + amp);
-            g.addColorStop(0, 'rgba(231, 190, 200, 0)');
+            g.addColorStop(0, 'rgba(240, 230, 232, 0)');
             g.addColorStop(0.35, hue[0]);
             g.addColorStop(0.7, hue[1]);
             g.addColorStop(1, 'rgba(136, 32, 56, 0)');
@@ -200,9 +200,9 @@
             ctx.save();
             ctx.translate(shift, 0);
 
-            band(t, H * 0.055, H * 0.30, H * 0.13, ['rgba(223, 171, 183,.42)', 'rgba(239, 213, 219,.30)']);
-            band(t * 0.85 + 1.7, H * 0.07, H * 0.52, H * 0.16, ['rgba(136, 32, 56,.30)', 'rgba(233, 198, 206,.36)']);
-            band(t * 1.15 + 3.4, H * 0.05, H * 0.72, H * 0.11, ['rgba(246, 234, 237,.5)', 'rgba(219, 166, 178,.3)']);
+            band(t, H * 0.055, H * 0.30, H * 0.13, ['rgba(235, 222, 225,.42)', 'rgba(245, 239, 240,.30)']);
+            band(t * 0.85 + 1.7, H * 0.07, H * 0.52, H * 0.16, ['rgba(136, 32, 56,.30)', 'rgba(242, 233, 235,.36)']);
+            band(t * 1.15 + 3.4, H * 0.05, H * 0.72, H * 0.11, ['rgba(250, 247, 248,.5)', 'rgba(233, 220, 223,.3)']);
 
             ctx.restore();
             requestAnimationFrame(frame);
@@ -561,14 +561,14 @@
             camera.position.set(0, 0, 10);
 
             /* champagne lighting — key-dominant so 3D forms shade visibly */
-            scene.add(new THREE.AmbientLight(0xfaf3f4, 0.72));
-            var key = new THREE.DirectionalLight(0xf1dadf, 1.35);
+            scene.add(new THREE.AmbientLight(0xfcfafb, 0.72));
+            var key = new THREE.DirectionalLight(0xf6f1f2, 1.35);
             key.position.set(5, 7, 6);
             scene.add(key);
             var rim = new THREE.DirectionalLight(0x882038, 0.5);
             rim.position.set(-7, -4, 3);
             scene.add(rim);
-            var glow = new THREE.PointLight(0xe8c1ca, 0.65, 40);
+            var glow = new THREE.PointLight(0xf1e7e9, 0.65, 40);
             glow.position.set(0, 2.5, 7);
             scene.add(glow);
 
@@ -591,7 +591,7 @@
             silkA.position.set(0.5, 2.4, -3.8);
             silkA.rotation.set(-0.3, 0, -0.1);
             world.add(silkA);
-            var silkB = makeSilk(9.5, 2.1, segX, segY, 0xeed3d9, 0.55);
+            var silkB = makeSilk(9.5, 2.1, segX, segY, 0xf5eeef, 0.55);
             silkB.position.set(-0.5, -2.8, -4);
             silkB.rotation.set(0.26, 0, 0.09);
             world.add(silkB);
@@ -632,7 +632,7 @@
 
             /* --- transparent glass forms --- */
             var glassMat = new THREE.MeshPhysicalMaterial({
-                color: 0xf7eaed, metalness: 0.05, roughness: 0.08,
+                color: 0xfaf7f8, metalness: 0.05, roughness: 0.08,
                 transparent: true, opacity: 0.4, clearcoat: 0.6, clearcoatRoughness: 0.15
             });
             var edgeMat = new THREE.LineBasicMaterial({ color: 0x882038, transparent: true, opacity: 0.75 });
@@ -681,7 +681,7 @@
 
             /* --- pearl accents --- */
             var pearls = [];
-            var pearlMat = new THREE.MeshStandardMaterial({ color: 0xf2dde2, metalness: 0.35, roughness: 0.25 });
+            var pearlMat = new THREE.MeshStandardMaterial({ color: 0xf7f2f3, metalness: 0.35, roughness: 0.25 });
             var pearlSpots = [[-3.4, -1.6, -1.8, 0.16], [3.6, 1.8, -2.2, 0.12], [1.8, -2.6, -1.2, 0.1]];
             for (var pI = 0; pI < pearlSpots.length; pI++) {
                 var pl = new THREE.Mesh(new THREE.SphereGeometry(pearlSpots[pI][3], 18, 14), pearlMat);
@@ -844,8 +844,8 @@
             camera.position.set(0, 0, 9);
 
             /* --- champagne lighting --- */
-            scene.add(new THREE.AmbientLight(0xf9eef1, 0.85));
-            var key = new THREE.DirectionalLight(0xebccd3, 1.05);
+            scene.add(new THREE.AmbientLight(0xfbf8f9, 0.85));
+            var key = new THREE.DirectionalLight(0xf3ebed, 1.05);
             key.position.set(4, 6, 8);
             scene.add(key);
             var rim = new THREE.DirectionalLight(0x882038, 0.55);
@@ -876,7 +876,7 @@
 
             var ribbon2 = new THREE.Mesh(
                 new THREE.TubeGeometry(curve, 180, 0.07, 8, false),
-                new THREE.MeshStandardMaterial({ color: 0xefd5db, metalness: 0.2, roughness: 0.5, transparent: true, opacity: 0.75 })
+                new THREE.MeshStandardMaterial({ color: 0xf5eff0, metalness: 0.2, roughness: 0.5, transparent: true, opacity: 0.75 })
             );
             ribbon2.position.y = -1.6;
             ribbon2.rotation.z = 0.18;
@@ -930,7 +930,7 @@
             var bottle = new THREE.Group();
             var body = new THREE.Mesh(
                 new THREE.CylinderGeometry(0.42, 0.46, 1.0, 24),
-                new THREE.MeshStandardMaterial({ color: 0xf6eaed, metalness: 0.1, roughness: 0.25, transparent: true, opacity: 0.9 })
+                new THREE.MeshStandardMaterial({ color: 0xfaf7f8, metalness: 0.1, roughness: 0.25, transparent: true, opacity: 0.9 })
             );
             var neck = new THREE.Mesh(
                 new THREE.CylinderGeometry(0.14, 0.16, 0.3, 16),

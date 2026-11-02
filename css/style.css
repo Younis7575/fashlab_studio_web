@@ -13,13 +13,13 @@
     --primary-dark: #3f0719;
     --primary-light: #7f3248;
 
-    --cream: #f8eef0;
-    --cream-dark: #eedde1;
+    --cream: #fbf8f9;
+    --cream-dark: #f6f1f2;
     --white: #ffffff;
 
     --text: #242020;
     --text-light: #6e6662;
-    --border: #e4d5d8;
+    --border: #f1eeee;
 
     --gold: #5a1424;
 
@@ -133,7 +133,7 @@ ul {
     top: 0;
     z-index: 1000;
     background: rgba(255, 255, 255, 0.97);
-    border-bottom: 1px solid rgba(228, 213, 216, 0.8);
+    border-bottom: 1px solid rgba(241, 238, 238, 0.8);
     backdrop-filter: blur(12px);
 }
 
@@ -743,7 +743,7 @@ ul {
 }
 
 .shop-hero .section-label {
-    color: #e6bdc6;
+    color: #f0e5e8;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 2.5px;
@@ -933,7 +933,7 @@ ul {
     position: relative;
     aspect-ratio: 0.78;
     overflow: hidden;
-    background: #f1e1e5;
+    background: #f7f3f4;
 }
 
 .product-thumb img {
@@ -1070,7 +1070,7 @@ ul {
     position: relative;
     aspect-ratio: 0.78;
     overflow: hidden;
-    background: #f0e1e4;
+    background: #f7f3f4;
 }
 
 .product-main-image img {
@@ -1131,7 +1131,7 @@ ul {
 
 .discount {
     padding: 4px 7px;
-    background: #eac7cf;
+    background: #f2e9eb;
     color: var(--primary-dark);
     font-size: 10px;
     font-weight: 700;
@@ -1467,7 +1467,7 @@ ul {
 }
 
 .newsletter-content .section-label {
-    color: #e0adb9;
+    color: #ecdfe2;
 }
 
 .newsletter-content h2 {
@@ -2269,7 +2269,7 @@ ul {
 
     overflow: hidden;
 
-    background: #eee4e6;
+    background: #f6f4f4;
 }
 
 .collection-card.collection-large {
@@ -2408,7 +2408,7 @@ ul {
 
     text-align: center;
 
-    background: #f3e8eb;
+    background: #f8f6f7;
 }
 
 .collections-cta .section-label {
@@ -2590,7 +2590,7 @@ ul {
 }
 
 .about-hero-content .section-label {
-    color: #e0adb9;
+    color: #ecdfe2;
     margin-bottom: 18px;
 }
 

@@ -1908,3 +1908,33 @@
     .lx-article-cta { text-align: center; justify-content: center; }
     .lx-breadcrumb > span { max-width: 24ch; }
 }
+
+/* Footer link icons — every link gets a glyph, matched by destination */
+.site-footer .footer-column a { display: flex; align-items: center; gap: 10px; }
+.site-footer .footer-column a::before {
+    content: "\f054"; /* chevron-right fallback */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 11px;
+    width: 14px;
+    text-align: center;
+    color: var(--lx-champagne);
+    flex: 0 0 auto;
+}
+.site-footer .footer-column a[href*="new"]::before         { content: "\f005"; }
+.site-footer .footer-column a[href*="best"]::before        { content: "\f091"; }
+.site-footer .footer-column a[href*="unstitched"]::before  { content: "\f0c4"; }
+.site-footer .footer-column a[href*="stitched"]:not([href*="unstitched"])::before { content: "\f553"; }
+.site-footer .footer-column a[href*="collection"]::before  { content: "\f5fd"; }
+.site-footer .footer-column a[href*="sale"]::before        { content: "\f02b"; }
+.site-footer .footer-column a[href*="contact"]::before     { content: "\f0e0"; }
+.site-footer .footer-column a[href*="about"]::before       { content: "\f02d"; }
+.site-footer .footer-column a[href*="track"]::before       { content: "\f48b"; }
+.site-footer .footer-column a[href*="privacy"]::before     { content: "\f3ed"; }
+.site-footer .footer-column a[href*="wa.me"]::before,
+.site-footer .footer-column a[href*="whatsapp"]::before {
+    content: "\f232";
+    font-family: "Font Awesome 6 Brands";
+    font-weight: 400;
+    font-size: 13px;
+}

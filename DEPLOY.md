@@ -35,7 +35,7 @@ Repo → **Settings → Secrets and variables → Actions → Secrets → New re
 | `SFTP_PASSWORD` | us user ka password |
 | `SFTP_PORT` | `22` *(optional — na dein to 22 use hoga)* |
 
-Direct link: https://github.com/hijabsagheer47/threadline-clothing/settings/secrets/actions
+Direct link: https://github.com/Younis7575/fashlab_studio_web/settings/secrets/actions
 
 ---
 
@@ -63,7 +63,7 @@ git commit -m "Add CI/CD pipeline for IONOS deployment"
 git push origin main
 ```
 
-Phir dekhein: https://github.com/hijabsagheer47/threadline-clothing/actions
+Phir dekhein: https://github.com/Younis7575/fashlab_studio_web/actions
 
 ---
 

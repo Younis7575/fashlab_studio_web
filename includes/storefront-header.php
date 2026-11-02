@@ -94,7 +94,7 @@ if ($mainNav === '') {
     <link rel="icon" type="image/png" sizes="32x32" href="<?= e(asset_url('images/brand/favicon-32.png')) ?>">
     <link rel="icon" type="image/png" sizes="16x16" href="<?= e(asset_url('images/brand/favicon-16.png')) ?>">
     <link rel="apple-touch-icon" sizes="180x180" href="<?= e(asset_url('images/brand/favicon-180.png')) ?>">
-    <meta name="theme-color" content="#c9a35c">
+    <meta name="theme-color" content="#5e0b27">
 
     <!-- Social preview -->
     <meta property="og:type" content="website">
@@ -189,7 +189,7 @@ if ($mainNav === '') {
 
         <a href="<?= url('/index.php') ?>" class="brand-logo">
             <img src="<?= e(asset_url('images/brand/logo-wordmark.png')) ?>"
-                 alt="<?= e($storeName) ?>" width="267" height="96">
+                 alt="<?= e($storeName) ?>" width="790" height="192">
             <span class="sr-only"><?= e($storeName) ?></span>
         </a>
 

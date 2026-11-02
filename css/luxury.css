@@ -502,7 +502,7 @@
     will-change: transform;
 }
 .lx-btn-primary {
-    background: linear-gradient(135deg, var(--lx-ink) 0%, #3a332c 100%);
+    background: linear-gradient(135deg, #5e0b27 0%, #3f0719 100%);
     color: #fdf9f2;
     box-shadow: 0 12px 30px rgba(33, 29, 26, .22);
 }
@@ -1093,7 +1093,7 @@
 }
 .newsletter-form input:focus { border-color: var(--lx-champagne) !important; }
 .newsletter-form button {
-    background: linear-gradient(135deg, var(--lx-ink), #3a332c) !important;
+    background: linear-gradient(135deg, #5e0b27, #3f0719) !important;
     color: #fdf9f2 !important;
     border-radius: 999px !important;
     padding: 15px 34px !important;
@@ -1328,7 +1328,7 @@
     padding: 13px 26px;
     border-radius: 999px;
     border: 0;
-    background: linear-gradient(135deg, var(--lx-ink), #3a332c);
+    background: linear-gradient(135deg, #5e0b27, #3f0719);
     color: #fdf9f2;
     font-size: 12px;
     font-weight: 700;
@@ -1489,7 +1489,7 @@
 .hero-section:not(.lx-hero) .hero-description { color: var(--lx-text-2); }
 .hero-section:not(.lx-hero) .hero-scroll-cue { color: var(--lx-text-3); }
 .hero-section:not(.lx-hero) .hero-buttons .btn-primary {
-    background: linear-gradient(135deg, var(--lx-ink), #3a332c);
+    background: linear-gradient(135deg, #5e0b27, #3f0719);
     color: #fdf9f2;
     border-color: transparent;
 }
@@ -1569,7 +1569,7 @@
 
 /* Pagination */
 .page-link { border-radius: 999px; }
-.page-link.active { background: var(--lx-ink); border-color: var(--lx-ink); }
+.page-link.active { background: #5e0b27; border-color: #5e0b27; }
 .page-link:hover { border-color: var(--lx-champagne); color: var(--lx-champagne-d); }
 
 /* Lottie inline SVG containers inside trust bar / empty states */
@@ -1791,7 +1791,7 @@
     transition: border-color .3s var(--lx-ease), color .3s var(--lx-ease), transform .3s var(--lx-ease), background .3s ease;
 }
 .lx-chip:hover { border-color: var(--lx-champagne); color: var(--lx-champagne-d); transform: translateY(-2px); }
-.lx-chip.is-active { background: var(--lx-ink); border-color: var(--lx-ink); color: var(--lx-ivory); }
+.lx-chip.is-active { background: #5e0b27; border-color: #5e0b27; color: var(--lx-ivory); }
 
 .lx-journal-grid {
     display: grid;

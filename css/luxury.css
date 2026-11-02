@@ -1938,3 +1938,50 @@
     font-weight: 400;
     font-size: 13px;
 }
+
+/* ============================================================
+   FOOTER — minimal: white ground, quiet type, hairline rules
+   ============================================================ */
+
+.site-footer {
+    background: #fff !important;
+    border-top: 1px solid var(--lx-line);
+    padding-top: 72px !important;
+}
+.site-footer .footer-grid { gap: 48px; padding-bottom: 56px; }
+.site-footer .footer-logo { font-size: 22px; letter-spacing: .02em; }
+.site-footer .footer-brand > p { font-size: 13.5px; line-height: 1.8; max-width: 260px; margin-top: 14px; }
+.site-footer h3 {
+    font-family: inherit;
+    font-size: 11px !important;
+    font-weight: 600;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--lx-text-3) !important;
+    margin-bottom: 22px !important;
+}
+.site-footer .footer-column a {
+    font-size: 14px;
+    padding: 6px 0;
+    color: var(--lx-ink);
+}
+.site-footer .footer-column a:hover { padding-left: 0; color: var(--lx-champagne-d); }
+.site-footer .footer-column a::before { color: var(--lx-text-3); font-size: 10px; transition: color .22s; }
+.site-footer .footer-column a:hover::before { color: var(--lx-champagne-d); }
+
+.social-links { margin-top: 24px; gap: 8px; }
+.social-links a {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 14px;
+    background: transparent !important;
+}
+.social-links a:hover { transform: none; }
+
+.footer-bottom { border-top-color: var(--lx-line) !important; padding: 22px 0 !important; }
+.footer-bottom .container { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.footer-bottom p { font-size: 12px; letter-spacing: .02em; margin: 0; }
+@media (max-width: 640px) {
+    .site-footer { padding-top: 52px !important; }
+    .footer-bottom .container { justify-content: center; text-align: center; }
+}

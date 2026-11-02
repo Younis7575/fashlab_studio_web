@@ -14,11 +14,11 @@ header('Content-Type: text/html; charset=utf-8');
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Georgia', 'Times New Roman', serif; background: #faf7f4; color: #3b2b26; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
         .card { max-width: 520px; padding: 56px 40px; text-align: center; }
-        .code { font-size: 72px; color: #b98d6f; letter-spacing: 4px; }
+        .code { font-size: 72px; color: #5a1424; letter-spacing: 4px; }
         h1 { font-size: 28px; margin: 16px 0 12px; }
         p { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 15px; line-height: 1.7; color: #6b5a52; }
         a { display: inline-block; margin-top: 24px; padding: 12px 28px; background: #3b2b26; color: #fff; text-decoration: none; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; letter-spacing: 1.5px; }
-        a:hover { background: #b98d6f; }
+        a:hover { background: #5a1424; }
     </style>
 </head>
 <body>

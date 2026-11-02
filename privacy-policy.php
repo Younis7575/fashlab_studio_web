@@ -37,7 +37,7 @@ require __DIR__ . '/includes/storefront-header.php';
     .legal-meta strong { color: var(--ink, #261a1e); font-weight: 700; }
     .legal-meta .dot {
         width: 7px; height: 7px; border-radius: 50%;
-        background: var(--gold, #b18a54); flex: 0 0 auto;
+        background: var(--gold, #5a1424); flex: 0 0 auto;
     }
     .legal-card {
         background: var(--surface, #fff);
@@ -53,8 +53,8 @@ require __DIR__ . '/includes/storefront-header.php';
     }
     .legal-card h2 .num {
         font-size: 11px; font-weight: 800; letter-spacing: 1.5px;
-        color: var(--gold, #b18a54);
-        border: 1px solid color-mix(in srgb, var(--gold, #b18a54) 40%, transparent);
+        color: var(--gold, #5a1424);
+        border: 1px solid color-mix(in srgb, var(--gold, #5a1424) 40%, transparent);
         border-radius: 8px; padding: 3px 8px; flex: 0 0 auto;
     }
     .legal-card p, .legal-card li { font-size: 14.5px; line-height: 1.75; color: var(--body, #4a403b); }

@@ -19,9 +19,9 @@
     --primary-light:  #7f3248;
     --primary-tint:   #f6eef0;
 
-    --gold:           #b18a54;
-    --gold-light:     #d8b98a;
-    --gold-tint:      #faf5ec;
+    --gold:           #5a1424;
+    --gold-light:     #e9c7d0;
+    --gold-tint:      #f6eef0;
 
     --ink:            #1a1416;
     --text:           #2a2224;
@@ -2467,8 +2467,8 @@ a.btn:focus-visible {
     left: 0; right: 0; bottom: -1px;
     height: 1px;
     background: linear-gradient(90deg,
-        transparent, rgba(177,138,84,.55) 30%,
-        rgba(177,138,84,.55) 70%, transparent);
+        transparent, rgba(90,20,36,.55) 30%,
+        rgba(90,20,36,.55) 70%, transparent);
     opacity: 0;
     transition: opacity .3s var(--ease);
 }
@@ -2512,7 +2512,7 @@ a.btn:focus-visible {
 .nav-actions .cart-count,
 .nav-actions .wishlist-count {
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    box-shadow: 0 0 0 1.5px rgba(216, 185, 138, .8);
+    box-shadow: 0 0 0 1.5px rgba(233,199,208, .8);
     font-weight: 700;
 }
 
@@ -2655,7 +2655,7 @@ a.btn:focus-visible {
     color: var(--primary);
     font-size: 17px;
     box-shadow: var(--shadow-sm);
-    border: 1px solid rgba(177,138,84,.35);
+    border: 1px solid rgba(90,20,36,.35);
 }
 
 .trust-item strong {
@@ -2698,14 +2698,14 @@ a.btn:focus-visible {
     bottom: 0;
     width: 56px;
     height: 2px;
-    background: linear-gradient(90deg, var(--gold), rgba(177,138,84,0));
+    background: linear-gradient(90deg, var(--gold), rgba(90,20,36,0));
 }
 
 .section-heading:not(.left) h2::after {
     left: 50%;
     transform: translateX(-50%);
     background: linear-gradient(90deg,
-        rgba(177,138,84,0), var(--gold), rgba(177,138,84,0));
+        rgba(90,20,36,0), var(--gold), rgba(90,20,36,0));
 }
 
 /* ============================================================
@@ -2766,7 +2766,7 @@ a.btn:focus-visible {
     height: 2px;
     border-radius: 2px;
     background: linear-gradient(90deg,
-        rgba(177,138,84,0), rgba(177,138,84,.7), rgba(177,138,84,0));
+        rgba(90,20,36,0), rgba(90,20,36,.7), rgba(90,20,36,0));
     opacity: 0;
     transition: opacity .4s var(--ease);
 }
@@ -2774,7 +2774,7 @@ a.btn:focus-visible {
 .review-card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-md);
-    border-color: rgba(177,138,84,.4);
+    border-color: rgba(90,20,36,.4);
 }
 
 .review-card:hover::before { opacity: 1; }
@@ -2796,7 +2796,7 @@ a.btn:focus-visible {
 
 .newsletter-section {
     background:
-        radial-gradient(90% 140% at 85% 10%, rgba(177,138,84,.16) 0%, transparent 55%),
+        radial-gradient(90% 140% at 85% 10%, rgba(90,20,36,.16) 0%, transparent 55%),
         linear-gradient(120deg, var(--primary-dark) 0%, var(--primary) 60%, var(--primary-light) 100%);
 }
 
@@ -2826,7 +2826,7 @@ a.btn:focus-visible {
     display: grid;
     place-items: center;
     border-radius: 50%;
-    border: 1px solid rgba(177,138,84,.45);
+    border: 1px solid rgba(90,20,36,.45);
     background: rgba(255, 253, 250, .92);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);

@@ -54,7 +54,7 @@
 .announcement-bar {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(90deg, #efd6dc 0%, #f5e4e8 50%, #efd6dc 100%);
+    background: linear-gradient(90deg, #3d0f1a 0%, #5a1424 50%, #3d0f1a 100%);
     color: var(--lx-ink);
     border-bottom: 1px solid var(--lx-champagne-l);
 }

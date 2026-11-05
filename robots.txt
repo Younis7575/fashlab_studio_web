@@ -1,9 +1,5 @@
 User-agent: *
 Allow: /
-
-User-agent: GPTBot
-Disallow: /
-
 Disallow: /admin
 Disallow: /api/
 Disallow: /config/
@@ -14,5 +10,8 @@ Disallow: /checkout.php
 Disallow: /my-orders.php
 Disallow: /*?sort=
 Disallow: /*?page=
+
+User-agent: GPTBot
+Disallow: /
 
 Sitemap: https://fashlabstudio.mytechrcm.com/sitemap.xml

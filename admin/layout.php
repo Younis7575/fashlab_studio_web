@@ -8,6 +8,7 @@ declare(strict_types=1);
 $storeName = setting('store_name');
 $unreadMsgs = (int) db()->query('SELECT COUNT(*) FROM contact_messages WHERE status = 0')->fetchColumn();
 $pendingOrders = (int) db()->query("SELECT COUNT(*) FROM orders WHERE order_status = 'pending'")->fetchColumn();
+$pendingReviews = tc_table_exists('reviews') ? (int) db()->query("SELECT COUNT(*) FROM reviews WHERE status = 'pending'")->fetchColumn() : 0;
 
 $navItems = [
     'dashboard' => ['label' => 'Dashboard',           'icon' => 'fa-gauge-high',     'href' => '/admin/index.php'],
@@ -16,6 +17,7 @@ $navItems = [
     'categories'=> ['label' => 'Categories',          'icon' => 'fa-table-cells-large', 'href' => '/admin/categories.php'],
     'collections'=> ['label' => 'Collections',         'icon' => 'fa-gem',            'href' => '/admin/collections.php'],
     'orders'    => ['label' => 'Orders',              'icon' => 'fa-receipt',        'href' => '/admin/orders.php', 'badge' => $pendingOrders],
+    'reviews'   => ['label' => 'Reviews',             'icon' => 'fa-star-half-stroke', 'href' => '/admin/reviews.php', 'badge' => $pendingReviews],
     'customers' => ['label' => 'Customers',           'icon' => 'fa-users',          'href' => '/admin/customers.php'],
     'subscribers'=> ['label' => 'Subscribers',        'icon' => 'fa-envelope-open-text', 'href' => '/admin/subscribers.php'],    'messages'  => ['label' => 'Messages',             'icon' => 'fa-comment-dots',   'href' => '/admin/messages.php', 'badge' => $unreadMsgs],
     'journal'   => ['label' => 'Style Journal',         'icon' => 'fa-feather',        'href' => '/admin/journal.php'],

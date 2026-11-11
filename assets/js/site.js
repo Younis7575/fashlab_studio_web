@@ -306,15 +306,62 @@
         }
 
         /* Tabs */
+        function openTab(name, scroll) {
+            var tab = qs('.product-tab[data-tab="' + name + '"]');
+            var content = qs('#tab-' + name);
+            if (!tab || !content) return null;
+            qsa('.product-tab').forEach(function (t) { t.classList.remove('active'); });
+            qsa('.product-tab-content').forEach(function (c) { c.classList.remove('active'); });
+            tab.classList.add('active');
+            content.classList.add('active');
+            if (scroll) {
+                var top = qs('.product-tabs').getBoundingClientRect().top + window.pageYOffset - 90;
+                window.scrollTo({ top: top, behavior: 'smooth' });
+            }
+            return content;
+        }
         qsa('.product-tab').forEach(function (tab) {
-            tab.addEventListener('click', function () {
-                qsa('.product-tab').forEach(function (t) { t.classList.remove('active'); });
-                qsa('.product-tab-content').forEach(function (c) { c.classList.remove('active'); });
-                tab.classList.add('active');
-                var content = qs('#tab-' + tab.getAttribute('data-tab'));
-                if (content) content.classList.add('active');
+            tab.addEventListener('click', function () { openTab(tab.getAttribute('data-tab'), false); });
+        });
+
+        /* "See reviews" / "Write a review" links open the Reviews tab */
+        qsa('[data-open-tab]').forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                var content = openTab(link.getAttribute('data-open-tab'), true);
+                var focusSel = link.getAttribute('data-focus');
+                if (content && focusSel) {
+                    var form = qs(focusSel);
+                    if (form) {
+                        form.classList.add('is-open');
+                        setTimeout(function () {
+                            form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            var first = form.querySelector('input:not([type=hidden]), textarea');
+                            if (first) first.focus({ preventScroll: true });
+                        }, 350);
+                    }
+                }
             });
         });
+
+        /* Write a Review button toggles the form */
+        qsa('[data-toggle-review-form]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var form = qs('#reviewForm');
+                if (!form) return;
+                var open = form.classList.toggle('is-open');
+                if (open) {
+                    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    var first = form.querySelector('input[type=radio]');
+                    if (first) first.focus({ preventScroll: true });
+                }
+            });
+        });
+
+        /* Returning from a review submit (#tab-reviews) — show that tab */
+        if (window.location.hash === '#tab-reviews') {
+            openTab('reviews', true);
+        }
     }
 
     /* ---------------------------------------------------------------- cart */

@@ -16,7 +16,7 @@ $variants      = get_product_variants((int) $product['id']);
 $categories    = get_product_categories((int) $product['id']);
 $related       = related_products($product, 4);
 $reviewSummary = tc_review_summary((int) $product['id']);
-$reviews       = tc_product_reviews((int) $product['id'], 10);
+$reviews       = tc_product_reviews((int) $product['id'], 20);
 $wished        = in_array((int) $product['id'], wishlist_ids(), true);
 
 // Review submission (stored pending until an admin approves it).
@@ -236,21 +236,17 @@ require __DIR__ . '/includes/storefront-header.php';
 
             <div class="product-rating">
                 <div class="stars">
-                    <?php if ($reviewSummary['count'] > 0): ?>
-                        <?php for ($i = 1; $i <= 5; $i++): ?>
-                            <i class="fa-<?= $i <= (int) round($reviewSummary['avg']) ? 'solid' : 'regular' ?> fa-star"></i>
-                        <?php endfor; ?>
-                    <?php else: ?>
-                        <?php for ($i = 1; $i <= 5; $i++): ?><i class="fa-solid fa-star"></i><?php endfor; ?>
-                    <?php endif; ?>
+                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                        <?= tc_star_icon($i, (float) $reviewSummary['avg'], $reviewSummary['count'] > 0) ?>
+                    <?php endfor; ?>
                 </div>
-                <span>
-                    <?php if ($reviewSummary['count'] > 0): ?>
-                        <?= $reviewSummary['avg'] ?> (<?= (int) $reviewSummary['count'] ?> review<?= (int) $reviewSummary['count'] === 1 ? '' : 's' ?>)
-                    <?php else: ?>
-                        Premium <?= e($categories[0]['name'] ?? setting('store_name')) ?> piece
-                    <?php endif; ?>
-                </span>
+                <?php if ($reviewSummary['count'] > 0): ?>
+                    <a href="#tab-reviews" data-open-tab="reviews" class="rating-link">
+                        <?= $reviewSummary['avg'] ?> · <?= (int) $reviewSummary['count'] ?> review<?= (int) $reviewSummary['count'] === 1 ? '' : 's' ?>
+                    </a>
+                <?php else: ?>
+                    <a href="#tab-reviews" data-open-tab="reviews" data-focus="#reviewForm" class="rating-link">Be the first to review</a>
+                <?php endif; ?>
             </div>
 
             <div class="product-price">
@@ -430,7 +426,7 @@ require __DIR__ . '/includes/storefront-header.php';
             <button class="product-tab" type="button" data-tab="fabric">Fabric &amp; Care</button>
             <button class="product-tab" type="button" data-tab="details">Product Details</button>
             <button class="product-tab" type="button" data-tab="shipping">Delivery &amp; Exchange</button>
-            <button class="product-tab" type="button" data-tab="reviews">Reviews</button>
+            <button class="product-tab" type="button" data-tab="reviews">Reviews (<?= (int) $reviewSummary['count'] ?>)</button>
         </div>
 
         <div class="product-tab-content active" id="tab-description">
@@ -474,101 +470,117 @@ require __DIR__ . '/includes/storefront-header.php';
         </div>
 
         <div class="product-tab-content" id="tab-reviews">
-            <h3>Customer Reviews</h3>
-
             <?php if (!tc_table_exists('reviews')): ?>
+                <h3>Customer Reviews</h3>
                 <p>Reviews are coming soon. In the meantime, feel free to <a href="<?= url('/contact.php') ?>">contact us</a> with any questions about this piece.</p>
             <?php else: ?>
 
-            <div class="reviews-summary">
-                <div class="reviews-score">
-                    <strong><?= $reviewSummary['count'] > 0 ? $reviewSummary['avg'] : '—' ?></strong>
+            <div class="rv-head">
+                <div>
+                    <h3>Customer Reviews</h3>
+                    <p>Honest feedback from Fashlab Studio shoppers</p>
+                </div>
+                <button type="button" class="btn btn-primary rv-write-btn" data-toggle-review-form>
+                    <i class="fa-regular fa-pen-to-square"></i> Write a Review
+                </button>
+            </div>
+
+            <div class="rv-summary">
+                <div class="rv-score">
+                    <strong><?= $reviewSummary['count'] > 0 ? number_format((float) $reviewSummary['avg'], 1) : '0.0' ?></strong>
                     <div class="stars">
                         <?php for ($i = 1; $i <= 5; $i++): ?>
-                            <i class="fa-<?= $i <= (int) round($reviewSummary['avg']) ? 'solid' : 'regular' ?> fa-star"></i>
+                            <?= tc_star_icon($i, (float) $reviewSummary['avg'], $reviewSummary['count'] > 0) ?>
                         <?php endfor; ?>
                     </div>
-                    <span><?= (int) $reviewSummary['count'] ?> review<?= (int) $reviewSummary['count'] === 1 ? '' : 's' ?></span>
+                    <span>Based on <?= (int) $reviewSummary['count'] ?> review<?= (int) $reviewSummary['count'] === 1 ? '' : 's' ?></span>
                 </div>
-                <div class="reviews-bars">
+                <div class="rv-bars">
                     <?php foreach ([5, 4, 3, 2, 1] as $star): ?>
                         <?php
                         $n = $reviewSummary['breakdown'][$star] ?? 0;
                         $pct = $reviewSummary['count'] > 0 ? (int) round($n / $reviewSummary['count'] * 100) : 0;
                         ?>
-                        <div class="review-bar">
+                        <div class="rv-bar">
                             <span><?= $star ?> <i class="fa-solid fa-star"></i></span>
-                            <div class="review-bar-track"><span style="width: <?= $pct ?>%"></span></div>
+                            <div class="rv-bar-track"><span style="width: <?= $pct ?>%"></span></div>
                             <em><?= $n ?></em>
                         </div>
                     <?php endforeach; ?>
                 </div>
             </div>
 
+            <form method="post" action="<?= e(url('/product.php?slug=' . urlencode($product['slug']))) ?>#tab-reviews" class="rv-form" id="reviewForm" novalidate>
+                <?= csrf_field() ?>
+                <input type="hidden" name="review_submit" value="1">
+                <input type="hidden" name="product_id" value="<?= (int) $product['id'] ?>">
+                <h4>Share your experience</h4>
+                <p class="rv-form-note">Reviewing <strong><?= e($product['name']) ?></strong>. Your email is never shown publicly.</p>
+
+                <fieldset class="rv-stars-input">
+                    <legend>Your rating <span class="required">*</span></legend>
+                    <div class="rv-stars-pick">
+                        <?php for ($i = 5; $i >= 1; $i--): ?>
+                            <input type="radio" id="rv-star-<?= $i ?>" name="review_rating" value="<?= $i ?>" required>
+                            <label for="rv-star-<?= $i ?>" title="<?= $i ?> star<?= $i === 1 ? '' : 's' ?>"><i class="fa-solid fa-star"></i></label>
+                        <?php endfor; ?>
+                    </div>
+                </fieldset>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="review_name">Name <span class="required">*</span></label>
+                        <input type="text" id="review_name" name="review_name" maxlength="150" required placeholder="e.g. Ayesha K.">
+                    </div>
+                    <div class="form-group">
+                        <label for="review_email">Email <span class="required">*</span></label>
+                        <input type="email" id="review_email" name="review_email" maxlength="190" required placeholder="you@example.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="review_title">Review title</label>
+                    <input type="text" id="review_title" name="review_title" maxlength="190" placeholder="e.g. Beautiful fabric, true to colour">
+                </div>
+                <div class="form-group">
+                    <label for="review_body">Your review <span class="required">*</span></label>
+                    <textarea id="review_body" name="review_body" rows="4" minlength="10" maxlength="2000" required placeholder="Tell other shoppers about the fabric, colour, fit and delivery…"></textarea>
+                </div>
+                <div class="rv-form-actions">
+                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                    <button type="button" class="btn btn-outline" data-toggle-review-form>Cancel</button>
+                </div>
+            </form>
+
             <?php if ($reviews): ?>
-                <div class="reviews-list">
+                <div class="rv-list">
                     <?php foreach ($reviews as $review): ?>
-                        <article class="review-entry">
-                            <div class="review-entry-head">
-                                <div class="review-entry-avatar"><?= e(mb_strtoupper(mb_substr($review['name'], 0, 1))) ?></div>
-                                <div>
+                        <article class="rv-card<?= $review['status'] === 'featured' ? ' is-featured' : '' ?>">
+                            <header>
+                                <div class="rv-avatar"><?= e(mb_strtoupper(mb_substr($review['name'], 0, 1))) ?></div>
+                                <div class="rv-who">
                                     <strong><?= e($review['name']) ?></strong>
                                     <?php if ((int) $review['is_verified_purchase'] === 1): ?>
-                                        <span class="verified-badge"><i class="fa-solid fa-circle-check"></i> Verified Purchase</span>
+                                        <span class="rv-verified"><i class="fa-solid fa-circle-check"></i> Verified Buyer</span>
                                     <?php endif; ?>
-                                    <div class="stars">
-                                        <?php for ($i = 1; $i <= 5; $i++): ?>
-                                            <i class="fa-<?= $i <= (int) $review['rating'] ? 'solid' : 'regular' ?> fa-star"></i>
-                                        <?php endfor; ?>
-                                    </div>
                                 </div>
-                                <time><?= e(format_date($review['created_at'])) ?></time>
+                                <time datetime="<?= e(date('Y-m-d', strtotime($review['created_at']))) ?>"><?= e(format_date($review['created_at'])) ?></time>
+                            </header>
+                            <div class="stars">
+                                <?php for ($i = 1; $i <= 5; $i++): ?>
+                                    <i class="fa-<?= $i <= (int) $review['rating'] ? 'solid' : 'regular' ?> fa-star"></i>
+                                <?php endfor; ?>
                             </div>
-                            <?php if ($review['title'] !== ''): ?><h4><?= e($review['title']) ?></h4><?php endif; ?>
-                            <p><?= nl2br(e($review['body'])) ?></p>
+                            <?php if (($review['title'] ?? '') !== ''): ?><h4><?= e($review['title']) ?></h4><?php endif; ?>
+                            <p><?= nl2br(e((string) $review['body'])) ?></p>
                         </article>
                     <?php endforeach; ?>
                 </div>
             <?php else: ?>
-                <p class="reviews-none">No reviews yet — be the first to review this piece.</p>
+                <div class="rv-empty">
+                    <i class="fa-regular fa-comments"></i>
+                    <p>No reviews yet. Bought this piece? Be the first to share your thoughts.</p>
+                </div>
             <?php endif; ?>
-
-            <form method="post" action="<?= e(url('/product.php?slug=' . urlencode($product['slug']))) ?>#tab-reviews" class="review-form" id="reviewForm">
-                <?= csrf_field() ?>
-                <h4>Write a Review</h4>
-                <input type="hidden" name="review_submit" value="1">
-                <input type="hidden" name="product_id" value="<?= (int) $product['id'] ?>">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="review_name">Name <span class="required">*</span></label>
-                        <input type="text" id="review_name" name="review_name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="review_email">Email <span class="required">*</span></label>
-                        <input type="email" id="review_email" name="review_email" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="review_rating">Rating <span class="required">*</span></label>
-                        <select id="review_rating" name="review_rating" required>
-                            <option value="">Select…</option>
-                            <?php for ($i = 5; $i >= 1; $i--): ?>
-                                <option value="<?= $i ?>"><?= $i ?> star<?= $i === 1 ? '' : 's' ?></option>
-                            <?php endfor; ?>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="review_title">Title</label>
-                        <input type="text" id="review_title" name="review_title" maxlength="190">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="review_body">Your Review <span class="required">*</span></label>
-                    <textarea id="review_body" name="review_body" rows="4" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Submit Review</button>
-            </form>
 
             <?php endif; ?>
         </div>

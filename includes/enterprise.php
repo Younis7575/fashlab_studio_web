@@ -433,6 +433,18 @@ function tc_review_summary(int $productId): array
     return ['avg' => $count > 0 ? round($sum / $count, 1) : 0.0, 'count' => $count, 'breakdown' => $breakdown];
 }
 
+/** One star icon for an average rating: full, half or empty. */
+function tc_star_icon(int $position, float $avg, bool $hasReviews = true): string
+{
+    if ($hasReviews && $avg >= $position - 0.25) {
+        return '<i class="fa-solid fa-star"></i>';
+    }
+    if ($hasReviews && $avg >= $position - 0.75) {
+        return '<i class="fa-solid fa-star-half-stroke"></i>';
+    }
+    return '<i class="fa-regular fa-star"></i>';
+}
+
 /** Submit a review (stored 'pending' until admin approves). */
 function tc_submit_review(array $data): array
 {
@@ -460,13 +472,47 @@ function tc_submit_review(array $data): array
         return ['ok' => false, 'error' => 'Please write a short review (at least 10 characters).'];
     }
 
-    $stmt = db()->prepare(
-        'INSERT INTO reviews (product_id, customer_id, order_id, name, email, rating, title, body, status)
-         VALUES (?, NULL, NULL, ?, ?, ?, ?, ?, \'pending\')'
-    );
-    $stmt->execute([$productId, mb_substr($name, 0, 150), $email, $rating, $title ?: null, mb_substr($body, 0, 2000)]);
+    $db = db();
 
-    return ['ok' => true, 'message' => 'Thank you! Your review has been submitted and will appear after moderation.'];
+    // One review per email per product — stops accidental double posts and spam bursts.
+    $dupe = $db->prepare('SELECT COUNT(*) FROM reviews WHERE product_id = ? AND email = ?');
+    $dupe->execute([$productId, $email]);
+    if ((int) $dupe->fetchColumn() > 0) {
+        return ['ok' => false, 'error' => 'You have already reviewed this product. Thank you!'];
+    }
+
+    // "Verified Purchase" only when this email really ordered this product.
+    $verified = 0;
+    $orderId = null;
+    try {
+        $v = $db->prepare(
+            'SELECT o.id FROM orders o
+             JOIN order_items oi ON oi.order_id = o.id
+             WHERE LOWER(o.customer_email) = ? AND oi.product_id = ? AND o.order_status <> \'cancelled\'
+             ORDER BY o.id DESC LIMIT 1'
+        );
+        $v->execute([$email, $productId]);
+        $found = $v->fetchColumn();
+        if ($found !== false) {
+            $verified = 1;
+            $orderId = (int) $found;
+        }
+    } catch (Throwable $e) {
+        // Column names differ on older installs — the review still saves, just unverified.
+    }
+
+    $autoApprove = setting('reviews_auto_approve', '1') === '1';
+    $status = $autoApprove ? 'approved' : 'pending';
+
+    $stmt = $db->prepare(
+        'INSERT INTO reviews (product_id, customer_id, order_id, name, email, rating, title, body, is_verified_purchase, status)
+         VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?)'
+    );
+    $stmt->execute([$productId, $orderId, mb_substr($name, 0, 150), $email, $rating, $title ?: null, mb_substr($body, 0, 2000), $verified, $status]);
+
+    return ['ok' => true, 'message' => $autoApprove
+        ? 'Thank you! Your review is now live.'
+        : 'Thank you! Your review has been submitted and will appear once approved.'];
 }
 
 /* ============================================================================

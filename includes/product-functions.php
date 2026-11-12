@@ -428,6 +428,24 @@ function render_product_card(array $product): string
         ? '<img class="img-alt" src="' . e($img2) . '" alt="" loading="lazy">'
         : '';
 
+    /* Real ratings only — products without reviews show an invitation, never fake stars. */
+    $ratingHtml = '';
+    if (function_exists('tc_rating_map')) {
+        $rating = tc_rating_map()[$productId] ?? null;
+        if ($rating && $rating['count'] > 0) {
+            $stars = '';
+            for ($i = 1; $i <= 5; $i++) {
+                $stars .= tc_star_icon($i, $rating['avg']);
+            }
+            $ratingHtml = '<div class="p-rating" aria-label="Rated ' . e((string) $rating['avg']) . ' out of 5">'
+                . '<span class="p-stars">' . $stars . '</span>'
+                . '<span class="p-rating-count">' . e(number_format($rating['avg'], 1)) . ' (' . (int) $rating['count'] . ')</span></div>';
+        } else {
+            $ratingHtml = '<div class="p-rating is-empty"><span class="p-stars"><i class="fa-regular fa-star"></i></span>'
+                . '<span class="p-rating-count">No reviews yet</span></div>';
+        }
+    }
+
     $wished = in_array($productId, wishlist_ids(), true);
     $actionsHtml = '<div class="product-actions">'
         . '<button type="button" class="quick-view-btn" data-product-id="' . $productId
@@ -441,7 +459,7 @@ function render_product_card(array $product): string
         ? '<button type="button" class="mini-cart-btn" disabled>Sold Out</button>'
         : '<button type="button" class="mini-cart-btn" data-product-id="' . $productId
           . '" data-product-name="' . $name . '" data-product-price="' . effective_price($product)
-          . '" data-product-image="' . e($img1) . '">Add to Cart</button>';
+          . '" data-product-image="' . e($img1) . '"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><span>Add to Cart</span></button>';
 
     return '<article class="product-card" data-product-id="' . $productId . '">
         <a class="product-card-link" href="' . $href . '">
@@ -453,9 +471,10 @@ function render_product_card(array $product): string
                 ' . $stockHtml . '
             </div>
             <div class="product-info">
-                <div class="p-name">' . $name . '</div>
-                <div class="p-price">' . $oldPrice . $price . '</div>
                 <div class="p-cat">' . e($categoryName) . '</div>
+                <div class="p-name">' . $name . '</div>
+                ' . $ratingHtml . '
+                <div class="p-price">' . $oldPrice . $price . '</div>
             </div>
         </a>
         ' . $addBtn . '

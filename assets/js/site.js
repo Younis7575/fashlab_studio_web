@@ -71,7 +71,7 @@
                 ev.preventDefault();
                 ev.stopPropagation();
                 if (btn.disabled) return;
-                var original = btn.textContent;
+                var original = btn.innerHTML;
                 btn.textContent = 'Adding…';
                 cartFetch('add', {
                     product_id: btn.getAttribute('data-product-id'),
@@ -79,7 +79,7 @@
                 }, function (res) {
                     btn.textContent = 'Added ✓';
                     refreshCartBadge(res.count);
-                    setTimeout(function () { btn.textContent = original; }, 1500);
+                    setTimeout(function () { btn.innerHTML = original; }, 1500);
                 });
             });
         });

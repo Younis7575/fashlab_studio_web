@@ -245,8 +245,9 @@ require __DIR__ . '/includes/storefront-header.php';
                         <?= $reviewSummary['avg'] ?> · <?= (int) $reviewSummary['count'] ?> review<?= (int) $reviewSummary['count'] === 1 ? '' : 's' ?>
                     </a>
                 <?php else: ?>
-                    <a href="#tab-reviews" data-open-tab="reviews" data-focus="#reviewForm" class="rating-link">Be the first to review</a>
+                    <span class="rating-none">No reviews yet</span>
                 <?php endif; ?>
+                <a href="#tab-reviews" data-open-tab="reviews" data-focus="#reviewForm" class="rating-write"><i class="fa-regular fa-pen-to-square"></i> Write a review</a>
             </div>
 
             <div class="product-price">

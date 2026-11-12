@@ -433,6 +433,34 @@ function tc_review_summary(int $productId): array
     return ['avg' => $count > 0 ? round($sum / $count, 1) : 0.0, 'count' => $count, 'breakdown' => $breakdown];
 }
 
+/**
+ * Live rating per product for listing cards: [product_id => ['avg'=>4.5,'count'=>2]].
+ * One grouped query per request, cached.
+ */
+function tc_rating_map(): array
+{
+    static $map = null;
+    if ($map !== null) {
+        return $map;
+    }
+    $map = [];
+    if (!tc_table_exists('reviews')) {
+        return $map;
+    }
+    try {
+        $rows = db()->query(
+            "SELECT product_id, ROUND(AVG(rating), 1) AS avg, COUNT(*) AS n
+             FROM reviews WHERE status IN ('approved', 'featured') GROUP BY product_id"
+        )->fetchAll();
+        foreach ($rows as $r) {
+            $map[(int) $r['product_id']] = ['avg' => (float) $r['avg'], 'count' => (int) $r['n']];
+        }
+    } catch (Throwable $e) {
+        $map = [];
+    }
+    return $map;
+}
+
 /** One star icon for an average rating: full, half or empty. */
 function tc_star_icon(int $position, float $avg, bool $hasReviews = true): string
 {

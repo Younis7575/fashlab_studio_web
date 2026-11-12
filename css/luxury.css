@@ -2082,28 +2082,66 @@
 }
 
 /* ============================================================
-   PRODUCT CARD — final layout (overrides earlier card rules)
-   Add to Cart sits in normal flow under the price so it can
-   never cover the name/price; icons stack top-right on the image.
+   PRODUCT CARD — premium layout (overrides earlier card rules)
+   Image on top, quiet details below, Add to Cart in normal flow
+   so it never covers the name or price.
    ============================================================ */
 
 .product-card {
     display: flex;
     flex-direction: column;
     background: #fff;
-    border: 1px solid #f1ebe8;
-    border-radius: 16px;
+    border: 1px solid rgba(94, 11, 39, .06);
+    border-radius: 18px;
     overflow: hidden;
+    box-shadow: 0 1px 2px rgba(33, 29, 26, .04);
+    transition: transform .45s cubic-bezier(.2, .7, .2, 1), box-shadow .45s ease, border-color .45s ease;
+}
+.product-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(200, 149, 30, .35);
+    box-shadow: 0 22px 44px -18px rgba(60, 20, 30, .28);
 }
 .product-card .product-card-link { display: flex; flex-direction: column; flex: 1; color: inherit; }
 
-.product-card .product-thumb { aspect-ratio: 3 / 4; border-radius: 0; }
+/* image: full-bleed, gentle zoom + second photo on hover */
+.product-card .product-thumb {
+    aspect-ratio: 3 / 4;
+    border-radius: 0;
+    background: #f6f1ee;
+    animation: none;
+}
+.product-card .product-thumb > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: none;
+    transition: transform 1.1s cubic-bezier(.2, .7, .2, 1), opacity .6s ease;
+}
+.product-card:hover .product-thumb > img { transform: scale(1.06); }
+.product-card .product-thumb::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 38%;
+    background: linear-gradient(to top, rgba(20, 10, 14, .18), transparent);
+    opacity: 0;
+    transition: opacity .45s ease;
+    pointer-events: none;
+    z-index: 2;
+}
+.product-card:hover .product-thumb::after { opacity: 1; }
+.product-card:hover .product-thumb { box-shadow: none; }
 
-/* icon buttons: quick view + wishlist, stacked on the image */
+/* badges (Sale / New) */
+.product-card .product-badges { position: absolute; top: 12px; left: 12px; z-index: 5; display: flex; flex-direction: column; gap: 6px; }
+.product-card .product-badge { position: static; padding: 5px 10px; font-size: 9.5px; letter-spacing: .14em; border-radius: 99px; }
+
+/* icon buttons: quick view + wishlist, frosted glass */
 .product-card .product-actions {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 12px;
+    right: 12px;
     z-index: 5;
     display: flex;
     flex-direction: column;
@@ -2113,75 +2151,135 @@
 .product-card .quick-view-btn,
 .product-card .wishlist-toggle {
     position: static;
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 0;
+    border: 1px solid rgba(255, 255, 255, .7);
     border-radius: 50%;
-    background: rgba(255, 255, 255, .95);
-    color: #3b2b26;
+    background: rgba(255, 255, 255, .82);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: #2a1f22;
     font-size: 14px;
-    box-shadow: 0 2px 10px rgba(33, 29, 26, .12);
+    box-shadow: 0 4px 14px rgba(33, 29, 26, .12);
     cursor: pointer;
-    transition: transform .2s ease, color .2s ease, background .2s ease;
+    transition: transform .25s ease, color .25s ease, background .25s ease;
 }
 .product-card .quick-view-btn:hover,
-.product-card .wishlist-toggle:hover { transform: scale(1.08); color: var(--primary, #5e0b27); }
-.product-card .wishlist-toggle.active { color: #a3372e; }
+.product-card .wishlist-toggle:hover { transform: scale(1.1); background: #fff; color: var(--primary, #5e0b27); }
+.product-card .wishlist-toggle.active { color: #b4232f; background: #fff; }
+
+/* desktop: quick view slides in on hover, wishlist always visible */
+@media (hover: hover) and (min-width: 781px) {
+    .product-card .quick-view-btn { opacity: 0; transform: translateX(8px); }
+    .product-card:hover .quick-view-btn { opacity: 1; transform: none; }
+    .product-card .quick-view-btn:hover { transform: scale(1.1); }
+}
 
 /* category pill on the image duplicates .p-cat — keep only the out-of-stock pill */
 .product-card .product-tag:not(.out-of-stock) { display: none; }
 
+/* details */
 .product-card .product-info {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 14px 14px 10px;
+    gap: 6px;
+    padding: 16px 16px 12px;
 }
-.product-card .product-info .p-name { font-size: 16px; min-height: 2.7em; margin: 0; }
-.product-card .product-info .p-price { margin-top: 6px; font-size: 16px; }
-.product-card .product-info .p-cat { margin-top: 4px; }
+.product-card .product-info .p-cat {
+    order: 0;
+    margin: 0;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: #a8897a;
+}
+.product-card .product-info .p-name {
+    margin: 0;
+    min-height: 2.7em;
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 16.5px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: #1f1a1c;
+    transition: color .25s ease;
+}
+.product-card:hover .product-info .p-name { color: var(--primary, #5e0b27); }
+.product-card .p-rating { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #8a7a70; }
+.product-card .p-stars { display: inline-flex; gap: 1px; color: #c8951e; font-size: 11.5px; }
+.product-card .p-rating.is-empty .p-stars { color: #d9cdc7; }
+.product-card .p-rating.is-empty .p-rating-count { color: #b3a49c; }
+.product-card .product-info .p-price {
+    margin-top: auto;
+    padding-top: 4px;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: .01em;
+    color: var(--primary, #5e0b27);
+}
+.product-card .product-info .p-price .old-price { font-size: 13px; font-weight: 500; color: #a99a92; }
 
-/* Add to Cart: in flow, always visible, full card width */
+/* Add to Cart: outlined, fills with brand colour on hover */
 .product-card .mini-cart-btn {
     position: static;
     opacity: 1;
     transform: none;
     width: auto;
-    min-height: 42px;
-    margin: 0 14px 14px;
-    padding: 0 12px;
-    border: 1px solid var(--ink, #1f1a1c);
-    border-radius: 10px;
-    background: var(--ink, #1f1a1c);
-    color: #fff;
+    min-height: 44px;
+    margin: 0 16px 16px;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border: 1.5px solid #1f1a1c;
+    border-radius: 999px;
+    background: transparent;
+    color: #1f1a1c;
     font-size: 11px;
     font-weight: 700;
-    letter-spacing: .12em;
+    letter-spacing: .16em;
     text-transform: uppercase;
     cursor: pointer;
-    transition: background .25s ease, border-color .25s ease;
+    transition: background .3s ease, color .3s ease, border-color .3s ease;
 }
-.product-card .mini-cart-btn:hover:not(:disabled) {
+.product-card .mini-cart-btn i { font-size: 13px; }
+.product-card .mini-cart-btn:hover:not(:disabled),
+.product-card:hover .mini-cart-btn:not(:disabled) {
     background: var(--primary, #5e0b27);
     border-color: var(--primary, #5e0b27);
+    color: #fff;
 }
-.product-card .mini-cart-btn:disabled { background: #b9aea9; border-color: #b9aea9; cursor: not-allowed; }
+.product-card .mini-cart-btn:disabled { border-color: #d6ccc7; color: #a99a92; background: #f7f3f1; cursor: not-allowed; }
 
 @media (max-width: 780px) {
-    .product-card { border-radius: 12px; }
+    .product-card { border-radius: 14px; }
+    .product-card:hover { transform: none; box-shadow: 0 1px 2px rgba(33, 29, 26, .04); }
+    .product-card:hover .product-thumb > img { transform: none; }
     .product-card .product-actions { top: 8px; right: 8px; gap: 6px; }
     .product-card .quick-view-btn,
-    .product-card .wishlist-toggle { width: 32px; height: 32px; font-size: 13px; }
-    .product-card .product-info { padding: 10px 10px 8px; }
-    .product-card .product-info .p-name { font-size: 14px; line-height: 1.3; }
-    .product-card .product-info .p-price { font-size: 14px; margin-top: 4px; }
-    .product-card .product-info .p-cat { font-size: 9.5px; letter-spacing: .06em; }
-    .product-card .mini-cart-btn { min-height: 38px; margin: 0 10px 10px; font-size: 10px; letter-spacing: .08em; border-radius: 8px; }
-    .product-card:hover { transform: none; }
+    .product-card .wishlist-toggle { width: 32px; height: 32px; font-size: 12.5px; }
+    .product-card .product-badges { top: 8px; left: 8px; }
+    .product-card .product-info { padding: 11px 11px 8px; gap: 4px; }
+    .product-card .product-info .p-cat { font-size: 8.5px; letter-spacing: .12em; }
+    .product-card .product-info .p-name { font-size: 13.5px; line-height: 1.3; }
+    .product-card .p-rating { font-size: 10.5px; gap: 4px; }
+    .product-card .p-stars { font-size: 10px; }
+    .product-card .product-info .p-price { font-size: 14.5px; }
+    .product-card .mini-cart-btn { min-height: 38px; margin: 0 11px 11px; gap: 6px; font-size: 9.5px; letter-spacing: .1em; }
+    .product-card .mini-cart-btn i { font-size: 11px; }
+    /* no hover on touch — keep the button calm, fill it on tap */
+    .product-card:hover .mini-cart-btn:not(:disabled) { background: transparent; color: #1f1a1c; border-color: #1f1a1c; }
+    .product-card .mini-cart-btn:active:not(:disabled) { background: var(--primary, #5e0b27); border-color: var(--primary, #5e0b27); color: #fff; }
+}
+
+@media (max-width: 360px) {
+    .product-card .mini-cart-btn span { display: none; }
 }
 
 /* ============================================================
@@ -2298,3 +2396,14 @@
     .rv-list { grid-template-columns: 1fr; }
     .rv-card { padding: 16px; }
 }
+
+.product-rating .rating-none { font-size: 13px; color: var(--text-muted, #8a7a70); }
+.product-rating .rating-write {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; margin-left: 4px;
+    border: 1px solid rgba(94, 11, 39, .25); border-radius: 999px;
+    font-size: 12px; font-weight: 600; letter-spacing: .04em;
+    color: var(--primary, #5e0b27); background: #fff;
+    transition: background .25s ease, color .25s ease;
+}
+.product-rating .rating-write:hover { background: var(--primary, #5e0b27); color: #fff; }

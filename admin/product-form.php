@@ -22,6 +22,32 @@ if ($isEdit) {
 
 $allCategories = $db->query('SELECT id, name, parent_id FROM categories ORDER BY sort_order ASC, name ASC')->fetchAll();
 
+/** Replace a product's variants with the rows posted from the form. */
+function save_posted_variants(PDO $db, int $productId): void
+{
+    $db->prepare('DELETE FROM product_variants WHERE product_id = ?')->execute([$productId]);
+    $variantNames  = (array) ($_POST['variant_name'] ?? []);
+    $variantValues = (array) ($_POST['variant_value'] ?? []);
+    $variantAdjust = (array) ($_POST['variant_adjustment'] ?? []);
+    $variantStock  = (array) ($_POST['variant_stock'] ?? []);
+    $variantSku    = (array) ($_POST['variant_sku'] ?? []);
+    $vStmt = $db->prepare(
+        'INSERT INTO product_variants (product_id, variant_name, variant_value, price_adjustment, stock_quantity, sku, status)
+         VALUES (?, ?, ?, ?, ?, ?, 1)'
+    );
+    foreach ($variantNames as $i => $vname) {
+        if (trim((string) $vname) === '' && trim((string) ($variantValues[$i] ?? '')) === '') continue;
+        $vStmt->execute([
+            $productId,
+            trim((string) $vname),
+            trim((string) ($variantValues[$i] ?? '')),
+            decimal((float) ($variantAdjust[$i] ?? 0)),
+            max(0, (int) ($variantStock[$i] ?? 0)),
+            trim((string) ($variantSku[$i] ?? '')),
+        ]);
+    }
+}
+
 /* ---------------------------------------------------------------------------
    POST handlers
 --------------------------------------------------------------------------- */
@@ -121,27 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 /* Replace variants */
-                $db->prepare('DELETE FROM product_variants WHERE product_id = ?')->execute([$productId]);
-                $variantNames  = (array) ($_POST['variant_name'] ?? []);
-                $variantValues = (array) ($_POST['variant_value'] ?? []);
-                $variantAdjust = (array) ($_POST['variant_adjustment'] ?? []);
-                $variantStock  = (array) ($_POST['variant_stock'] ?? []);
-                $variantSku    = (array) ($_POST['variant_sku'] ?? []);
-                $vStmt = $db->prepare(
-                    'INSERT INTO product_variants (product_id, variant_name, variant_value, price_adjustment, stock_quantity, sku, status)
-                     VALUES (?, ?, ?, ?, ?, ?, 1)'
-                );
-                foreach ($variantNames as $i => $vname) {
-                    if (trim((string) $vname) === '' && trim((string) ($variantValues[$i] ?? '')) === '') continue;
-                    $vStmt->execute([
-                        $productId,
-                        trim((string) $vname),
-                        trim((string) ($variantValues[$i] ?? '')),
-                        decimal((float) ($variantAdjust[$i] ?? 0)),
-                        max(0, (int) ($variantStock[$i] ?? 0)),
-                        trim((string) ($variantSku[$i] ?? '')),
-                    ]);
-                }
+                save_posted_variants($db, $productId);
 
                 record_activity('product_update', 'product', $productId, 'Updated "' . $data['name'] . '"');
                 flash_set('success', 'Product updated — changes are live on the storefront.');
@@ -171,6 +177,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!in_array($data['category_id'], $data['categories'], true) && $data['category_id'] > 0) {
                     $db->prepare('INSERT INTO product_categories (product_id, category_id) VALUES (?, ?)')->execute([$productId, $data['category_id']]);
                 }
+
+                save_posted_variants($db, $productId);
 
                 record_activity('product_create', 'product', $productId, 'Created "' . $data['name'] . '"');
                 flash_set('success', 'Product created successfully.');
@@ -459,21 +467,11 @@ ob_start();
                                         <?php if ((int) $img['is_primary'] === 1): ?>
                                             <span class="img-primary-badge">PRIMARY</span>
                                         <?php else: ?>
-                                            <form method="post" style="display:inline">
-                                                <?= csrf_field() ?>
-                                                <input type="hidden" name="action" value="set_primary">
-                                                <input type="hidden" name="image_id" value="<?= (int) $img['id'] ?>">
-                                                <button class="btn btn-outline btn-xs">Set primary</button>
-                                            </form>
+                                            <button type="submit" form="imgPrimary<?= (int) $img['id'] ?>" class="btn btn-outline btn-xs">Set primary</button>
                                         <?php endif; ?>
                                     </span>
                                     <span class="img-actions">
-                                        <form method="post" style="display:inline" onsubmit="return confirm('Delete this image?')">
-                                            <?= csrf_field() ?>
-                                            <input type="hidden" name="action" value="delete_image">
-                                            <input type="hidden" name="image_id" value="<?= (int) $img['id'] ?>">
-                                            <button class="btn btn-danger btn-xs" title="Delete image"><i class="fa-solid fa-trash"></i></button>
-                                        </form>
+                                        <button type="submit" form="imgDelete<?= (int) $img['id'] ?>" class="btn btn-danger btn-xs" title="Delete image"><i class="fa-solid fa-trash"></i></button>
                                     </span>
                                 </div>
                             </div>
@@ -483,16 +481,12 @@ ob_start();
                     <p style="color:var(--admin-muted)">No images yet — upload at least one so the product displays on the storefront.</p>
                 <?php endif; ?>
 
-                <form method="post" enctype="multipart/form-data" action="<?= e(url('/admin/product-form.php?id=' . $productId)) ?>">
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="action" value="upload_image">
-                    <label class="dropzone" id="dropzone">
-                        <i class="fa-solid fa-cloud-arrow-up" style="font-size:24px;display:block;margin-bottom:8px"></i>
-                        Click to choose images (JPG, PNG, WebP, GIF — max <?= (int) round(UPLOAD_MAX_SIZE / 1048576) ?> MB)
-                        <input type="file" name="image" accept="image/jpeg,image/png,image/webp,image/gif" required>
-                    </label>
-                    <button type="submit" class="btn btn-outline btn-sm" style="margin-top:12px"><i class="fa-solid fa-upload"></i> Upload Image</button>
-                </form>
+                <label class="dropzone" id="dropzone">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size:24px;display:block;margin-bottom:8px"></i>
+                    Click to choose images (JPG, PNG, WebP, GIF — max <?= (int) round(UPLOAD_MAX_SIZE / 1048576) ?> MB)
+                    <input type="file" name="image" form="imgUpload" accept="image/jpeg,image/png,image/webp,image/gif" required>
+                </label>
+                <button type="submit" form="imgUpload" class="btn btn-outline btn-sm" style="margin-top:12px"><i class="fa-solid fa-upload"></i> Upload Image</button>
             </div>
             <?php endif; ?>
 
@@ -508,6 +502,30 @@ ob_start();
         <?php endif; ?>
     </div>
 </form>
+
+<?php if ($isEdit): ?>
+<!-- Image action forms live outside the product form (forms cannot nest);
+     the controls in the Images card point at them via the form="" attribute. -->
+<?php $imageFormAction = e(url('/admin/product-form.php?id=' . $productId)); ?>
+<form id="imgUpload" method="post" enctype="multipart/form-data" action="<?= $imageFormAction ?>" hidden>
+    <?= csrf_field() ?>
+    <input type="hidden" name="action" value="upload_image">
+</form>
+<?php foreach ($images as $img): ?>
+    <?php if ((int) $img['is_primary'] !== 1): ?>
+        <form id="imgPrimary<?= (int) $img['id'] ?>" method="post" action="<?= $imageFormAction ?>" hidden>
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="set_primary">
+            <input type="hidden" name="image_id" value="<?= (int) $img['id'] ?>">
+        </form>
+    <?php endif; ?>
+    <form id="imgDelete<?= (int) $img['id'] ?>" method="post" action="<?= $imageFormAction ?>" hidden onsubmit="return confirm('Delete this image?')">
+        <?= csrf_field() ?>
+        <input type="hidden" name="action" value="delete_image">
+        <input type="hidden" name="image_id" value="<?= (int) $img['id'] ?>">
+    </form>
+<?php endforeach; ?>
+<?php endif; ?>
 
 <script>
     (function () {

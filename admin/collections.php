@@ -183,7 +183,7 @@ if ($editId > 0) {
 
 /* products for the assigner + current selection */
 $products = $db->query(
-    'SELECT id, name, sku, image, price, sale_price, status
+    'SELECT id, name, sku, price, sale_price, status
      FROM products
      ORDER BY name ASC
      LIMIT 500'

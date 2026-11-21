@@ -146,6 +146,7 @@ require __DIR__ . '/includes/storefront-header.php';
                             <div>
                                 <strong><?= e($item['product_name']) ?></strong>
                                 <?php if (!empty($item['variant_label'])): ?><p><?= e($item['variant_label']) ?></p><?php endif; ?>
+                                <?= tc_personalisation_html($item['personalisation'] ?? null) ?>
                             </div>
                             <span><?= (int) $item['quantity'] ?> × <?= money($item['price']) ?></span>
                         </div>

@@ -198,6 +198,11 @@ function place_order(array $input): array
             ]);
             $orderItemId = (int) $db->lastInsertId();
 
+            if (!empty($item['personalisation']) && tc_column_exists('order_items', 'personalisation')) {
+                $db->prepare('UPDATE order_items SET personalisation = ? WHERE id = ?')
+                   ->execute([json_encode($item['personalisation'], JSON_UNESCAPED_UNICODE), $orderItemId]);
+            }
+
             $prevStmt->execute([$productId]);
             $prevQty = (int) $prevStmt->fetchColumn();
             $stockStmt->execute([$qty, $productId]);

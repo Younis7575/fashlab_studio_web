@@ -16,7 +16,8 @@ $navItems = [
     'add_product' => ['label' => 'Add Product',       'icon' => 'fa-plus',           'href' => '/admin/product-form.php'],
     'categories'=> ['label' => 'Categories',          'icon' => 'fa-table-cells-large', 'href' => '/admin/categories.php'],
     'collections'=> ['label' => 'Collections',         'icon' => 'fa-gem',            'href' => '/admin/collections.php'],
-    'orders'    => ['label' => 'Orders',              'icon' => 'fa-receipt',        'href' => '/admin/orders.php', 'badge' => $pendingOrders],
+    'menu'      => ['label' => 'Menu',                'icon' => 'fa-bars',           'href' => '/admin/menu.php'],
+    'orders'  => ['label' => 'Orders',              'icon' => 'fa-receipt',        'href' => '/admin/orders.php', 'badge' => $pendingOrders],
     'reviews'   => ['label' => 'Reviews',             'icon' => 'fa-star-half-stroke', 'href' => '/admin/reviews.php', 'badge' => $pendingReviews],
     'customers' => ['label' => 'Customers',           'icon' => 'fa-users',          'href' => '/admin/customers.php'],
     'subscribers'=> ['label' => 'Subscribers',        'icon' => 'fa-envelope-open-text', 'href' => '/admin/subscribers.php'],    'messages'  => ['label' => 'Messages',             'icon' => 'fa-comment-dots',   'href' => '/admin/messages.php', 'badge' => $unreadMsgs],
@@ -25,6 +26,10 @@ $navItems = [
     'analytics' => ['label' => 'Analytics',            'icon' => 'fa-chart-line',     'href' => '/admin/analytics.php'],
     'settings'  => ['label' => 'Settings',            'icon' => 'fa-gear',           'href' => '/admin/settings.php'],
 ];
+$pendingDbUpdates = count(tc_pending_schema_updates());
+if ($pendingDbUpdates > 0 || ($active ?? '') === 'db_update') {
+    $navItems['db_update'] = ['label' => 'Database Update', 'icon' => 'fa-database', 'href' => '/admin/db-update.php', 'badge' => $pendingDbUpdates];
+}
 
 $flashes = flash_get();
 ?>

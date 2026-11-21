@@ -271,6 +271,72 @@
             });
         }
 
+        /* Variant select → show the matching gallery image (thumb alt text ends with the option value) */
+        if (variantSel) {
+            variantSel.addEventListener('change', function () {
+                var opt = variantSel.options[variantSel.selectedIndex];
+                var value = opt ? opt.text.split('—').pop().replace(/\(.*\)/g, '').trim().toLowerCase() : '';
+                if (!value) return;
+                var match = qsa('.product-thumb img').filter(function (img) {
+                    var alt = (img.alt || '').toLowerCase().trim();
+                    return alt.slice(-value.length) === value;
+                })[0];
+                if (match) match.closest('.product-thumb').click();
+            });
+        }
+
+        /* Personalisation: live character counters + client-side required check */
+        var persBox = qs('[data-personalisation]');
+        qsa('.pers-counter').forEach(function (counter) {
+            var field = document.getElementById(counter.getAttribute('data-for'));
+            if (!field) return;
+            var max = field.getAttribute('maxlength');
+            var update = function () { counter.textContent = field.value.length + ' / ' + max; };
+            field.addEventListener('input', update);
+            update();
+        });
+        function persMissing() {
+            if (!persBox) return null;
+            var missing = qsa('[required]', persBox).filter(function (f) {
+                return f.type === 'file' ? !f.files.length : !f.value.trim();
+            })[0];
+            return missing || null;
+        }
+        /* Add to cart, sending personalisation (incl. photo) as multipart when present */
+        function productAdd(payload, onDone, onFail) {
+            if (!persBox) {
+                cartFetch('add', payload, onDone);
+                return;
+            }
+            var missing = persMissing();
+            if (missing) {
+                flash('error', 'Please fill in: ' + (missing.getAttribute('data-label') || 'personalisation') + '.');
+                missing.focus();
+                if (onFail) onFail();
+                return;
+            }
+            var data = new FormData();
+            data.append('action', 'add');
+            data.append('csrf_token', csrfToken());
+            Object.keys(payload).forEach(function (k) { data.append(k, payload[k]); });
+            qsa('input, textarea', persBox).forEach(function (f) {
+                if (f.type === 'file') { if (f.files.length) data.append(f.name, f.files[0]); }
+                else data.append(f.name, f.value);
+            });
+            fetch(baseUrl() + '/api/cart.php', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: data,
+                credentials: 'same-origin'
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (res) {
+                    if (!res.ok) { flash('error', res.error || 'Something went wrong.'); if (onFail) onFail(); return; }
+                    onDone(res);
+                })
+                .catch(function () { flash('error', 'Could not reach the server. Please try again.'); if (onFail) onFail(); });
+        }
+
         /* Add to cart */
         var addBtn = qs('.product-add-cart');
         if (addBtn) {
@@ -282,11 +348,14 @@
                 var original = addBtn.innerHTML;
                 addBtn.disabled = true;
                 addBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ADDING…';
-                cartFetch('add', { product_id: productId, variant_id: variantId, qty: qty }, function (res) {
+                productAdd({ product_id: productId, variant_id: variantId, qty: qty }, function (res) {
                     addBtn.disabled = false;
                     addBtn.innerHTML = '<i class="fa-solid fa-check"></i> ADDED TO CART ✓';
                     refreshCartBadge(res.count);
                     setTimeout(function () { addBtn.innerHTML = original; }, 2000);
+                }, function () {
+                    addBtn.disabled = false;
+                    addBtn.innerHTML = original;
                 });
             });
         }
@@ -299,7 +368,7 @@
                 var productId = buyBtn.getAttribute('data-product-id');
                 var variantId = variantSel ? variantSel.value : '';
                 var qty = qtyEl ? parseInt(qtyEl.textContent, 10) || 1 : 1;
-                cartFetch('add', { product_id: productId, variant_id: variantId, qty: qty }, function () {
+                productAdd({ product_id: productId, variant_id: variantId, qty: qty }, function () {
                     window.location.href = baseUrl() + '/checkout.php';
                 });
             });

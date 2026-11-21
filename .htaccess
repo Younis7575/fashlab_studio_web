@@ -74,7 +74,7 @@ AcceptPathInfo On
     # Only the API front controller is reachable; its internals are includes.
     RewriteRule ^api/v1/routes(/|$) - [F,L]
     RewriteRule ^api/v1/(bootstrap|helpers)\.php$ - [F,L]
-    RewriteRule ^(database\.sql|migration-fashlab-upgrade\.sql|migration-mobile-api\.sql|SETUP\.md|README\.md|DEPLOY\.md|API\.md)$ - [F,L]
+    RewriteRule ^(database\.sql|migration-fashlab-upgrade\.sql|migration-mobile-api\.sql|migration-personalisation\.sql|SETUP\.md|README\.md|DEPLOY\.md|API\.md)$ - [F,L]
 </IfModule>
 
 # --- Uploads: never execute scripts -----------------------------------------

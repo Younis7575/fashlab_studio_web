@@ -100,7 +100,18 @@ if ($detailId > 0) {
                         <tbody>
                             <?php foreach ($orderItems as $item): ?>
                                 <tr>
-                                    <td><?= e($item['product_name']) ?> <span style="color:var(--admin-muted)">(ID <?= (int) $item['product_id'] ?>)</span></td>
+                                    <td>
+                                        <?= e($item['product_name']) ?> <span style="color:var(--admin-muted)">(ID <?= (int) $item['product_id'] ?>)</span>
+                                        <?php if (!empty($item['variant_label'])): ?>
+                                            <div style="font-size:12.5px;margin-top:4px"><?= e($item['variant_label']) ?></div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($item['personalisation'])): ?>
+                                            <div style="font-size:12.5px;margin-top:6px;padding:8px 10px;background:#faf6f2;border-radius:6px">
+                                                <strong style="display:block;margin-bottom:4px">Personalisation</strong>
+                                                <?= tc_personalisation_html($item['personalisation']) ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </td>
                                     <td><?= (int) $item['quantity'] ?></td>
                                     <td><?= money((float) $item['price']) ?></td>
                                     <td><strong><?= money((float) $item['subtotal']) ?></strong></td>

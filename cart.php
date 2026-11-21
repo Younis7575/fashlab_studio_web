@@ -49,6 +49,7 @@ require __DIR__ . '/includes/storefront-header.php';
                                     </div>
                                     <div class="cart-product-info">
                                         <h3><?= e($item['name']) ?></h3>
+                                        <?= tc_personalisation_html($item['personalisation'] ?? null) ?>
                                         <?php if ($item['variant_label']): ?>
                                             <p><?= e($item['variant_label']) ?></p>
                                         <?php endif; ?>

@@ -39,6 +39,7 @@ $remaining  = max(0.0, $freeAbove - $totals['subtotal']);
                 <div class="drawer-item-info">
                     <a href="<?= e(product_url($item['slug'])) ?>"><strong><?= e($item['name']) ?></strong></a>
                     <?php if ($item['variant_label']): ?><p><?= e($item['variant_label']) ?></p><?php endif; ?>
+                    <?= tc_personalisation_html($item['personalisation'] ?? null) ?>
                     <p class="drawer-item-price"><?= money($item['unit_price']) ?> × <?= (int) $item['qty'] ?>
                         <?php if (!$item['available']): ?><span class="drawer-unavailable">— unavailable</span><?php endif; ?>
                     </p>

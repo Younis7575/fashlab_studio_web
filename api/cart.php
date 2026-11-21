@@ -27,7 +27,30 @@ try {
                 exit;
             }
 
-            $result = cart_add($productId, $variantId, $qty);
+            /* Personalised products: validate the customer's input (and store any photo) first. */
+            $personalisation = [];
+            if (tc_personalisation_enabled()) {
+                $pst = db()->prepare('SELECT * FROM products WHERE id = ? LIMIT 1');
+                $pst->execute([$productId]);
+                $persFields = ($row = $pst->fetch()) ? tc_product_personalisation($row) : [];
+                if ($persFields) {
+                    $hasRequired = (bool) array_filter($persFields, static fn(array $f): bool => $f['required']);
+                    if ($hasRequired && empty($_POST['pers']) && empty($_FILES)) {
+                        http_response_code(422);
+                        echo json_encode(['ok' => false, 'error' => 'This item is personalised — please add your details on the product page.']);
+                        exit;
+                    }
+                    $collected = tc_collect_personalisation($persFields, $_POST, $_FILES);
+                    if (!$collected['ok']) {
+                        http_response_code(422);
+                        echo json_encode(['ok' => false, 'error' => $collected['error']]);
+                        exit;
+                    }
+                    $personalisation = $collected['values'];
+                }
+            }
+
+            $result = cart_add($productId, $variantId, $qty, $personalisation);
             echo json_encode([
                 'ok'      => $result['ok'],
                 'error'   => $result['ok'] ? null : ($result['message'] ?? null),

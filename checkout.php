@@ -338,6 +338,7 @@ require __DIR__ . '/includes/storefront-header.php';
                             <div class="checkout-product-info">
                                 <h3><?= e($item['name']) ?></h3>
                                 <?php if ($item['variant_label']): ?><p><?= e($item['variant_label']) ?></p><?php endif; ?>
+                                <?= tc_personalisation_html($item['personalisation'] ?? null) ?>
                                 <p>Quantity: <?= (int) $item['qty'] ?></p>
                             </div>
                             <div class="checkout-product-price"><?= money($item['line_total']) ?></div>

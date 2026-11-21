@@ -38,7 +38,8 @@ require __DIR__ . '/includes/storefront-header.php';
 ?>
 
 <!-- HERO -->
-<section class="collection-hero" style="background-image: linear-gradient(rgba(28,28,28,.55), rgba(28,28,28,.55)), url('<?= e(image_url($collection['banner'] ?: $collection['image'])) ?>')">
+<?php $heroImage = (string) ($collection['banner'] ?: $collection['image']); ?>
+<section class="collection-hero<?= $heroImage !== '' ? ' has-image' : '' ?>"<?php if ($heroImage !== ''): ?> style="background-image: linear-gradient(rgba(28,28,28,.55), rgba(28,28,28,.55)), url('<?= e(image_url($heroImage)) ?>')"<?php endif; ?>>
     <div class="container collection-hero-content">
         <span class="eyebrow"><?= e(strtoupper(setting('store_name'))) ?> COLLECTION</span>
         <h1><?= e($collection['name']) ?></h1>

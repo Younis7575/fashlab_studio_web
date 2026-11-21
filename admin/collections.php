@@ -168,7 +168,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 --------------------------------------------------------------------------- */
 $collections = $db->query(
     'SELECT c.*,
-            (SELECT COUNT(*) FROM collection_products cp WHERE cp.collection_id = c.id) AS product_count
+            (SELECT COUNT(*) FROM collection_products cp WHERE cp.collection_id = c.id) AS product_count,
+            (SELECT COUNT(*) FROM collection_products cp
+             JOIN products p ON p.id = cp.product_id AND p.status = 1
+             WHERE cp.collection_id = c.id) AS live_count
      FROM collections c
      ORDER BY c.sort_order ASC, c.name ASC'
 )->fetchAll();
@@ -245,7 +248,10 @@ ob_start();
                             </td>
                             <td>/collections/<?= e($c['slug']) ?></td>
                             <td><?= e($c['collection_type'] ?? '—') ?></td>
-                            <td><?= (int) $c['product_count'] ?></td>
+                            <td title="Live = active products shown on the storefront">
+                                <?= (int) $c['live_count'] ?> live<?php if ((int) $c['product_count'] !== (int) $c['live_count']): ?>
+                                    <span style="color:var(--admin-muted)">/ <?= (int) $c['product_count'] ?> total</span><?php endif; ?>
+                            </td>
                             <td><?= (int) $c['is_featured'] === 1 ? '✓' : '—' ?></td>
                             <td><?= (int) $c['sort_order'] ?></td>
                             <td>

@@ -214,13 +214,13 @@ require __DIR__ . '/includes/storefront-header.php';
                 <?php foreach ($images as $i => $img): ?>
                     <button class="product-thumb<?= $i === 0 ? ' active' : '' ?>" type="button"
                             data-image="<?= e(image_url($img['image'] ?? '')) ?>">
-                        <img src="<?= e(image_url($img['image'] ?? '')) ?>" alt="<?= e($product['name']) ?> view <?= (int) ($i + 1) ?>" loading="lazy">
+                        <img src="<?= e(image_url($img['image'] ?? '')) ?>" alt="<?= e(trim((string) ($img['alt_text'] ?? '')) ?: $product['name'] . ' view ' . ($i + 1)) ?>" loading="lazy">
                     </button>
                 <?php endforeach; ?>
             </div>
 
             <div class="product-main-image" id="productImageContainer">
-                <img id="mainProductImage" src="<?= e($primaryImage) ?>" alt="<?= e(setting('brand_name', setting('store_name')) . ' ' . $product['name']) ?>">
+                <img id="mainProductImage" src="<?= e($primaryImage) ?>" alt="<?= e(trim((string) ($images[0]['alt_text'] ?? '')) ?: setting('brand_name', setting('store_name')) . ' ' . $product['name']) ?>">
                 <div class="zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> Hover to zoom</div>
             </div>
         </div>
@@ -312,6 +312,30 @@ require __DIR__ . '/includes/storefront-header.php';
                             <button type="button" class="size-option<?= $si === 0 ? ' active' : '' ?>"><?= e($sz) ?></button>
                         <?php endforeach; ?>
                     </div>
+                </div>
+            <?php endif; ?>
+
+            <!-- Personalisation -->
+            <?php $persFields = tc_personalisation_enabled() ? tc_product_personalisation($product) : []; ?>
+            <?php if ($persFields): ?>
+                <div class="product-option product-personalisation" data-personalisation>
+                    <div class="option-heading"><strong>Personalise it</strong></div>
+                    <?php foreach ($persFields as $pi => $pf): ?>
+                        <div class="pers-field">
+                            <label for="pers-<?= (int) $pi ?>"><?= e($pf['label']) ?><?= $pf['required'] ? ' <span class="pers-required">*</span>' : ' <span class="pers-optional">(optional)</span>' ?></label>
+                            <?php if ($pf['type'] === 'photo'): ?>
+                                <input type="file" id="pers-<?= (int) $pi ?>" name="pers_file_<?= (int) $pi ?>" accept="image/jpeg,image/png,image/webp" data-label="<?= e($pf['label']) ?>" <?= $pf['required'] ? 'required' : '' ?>>
+                                <small>JPG, PNG or WebP — max <?= (int) round(UPLOAD_MAX_SIZE / 1048576) ?> MB</small>
+                            <?php elseif ($pf['type'] === 'textarea'): ?>
+                                <textarea id="pers-<?= (int) $pi ?>" name="pers[<?= (int) $pi ?>]" rows="3" data-label="<?= e($pf['label']) ?>" <?= $pf['max'] > 0 ? 'maxlength="' . (int) $pf['max'] . '"' : '' ?> <?= $pf['required'] ? 'required' : '' ?>></textarea>
+                            <?php else: ?>
+                                <input type="text" id="pers-<?= (int) $pi ?>" name="pers[<?= (int) $pi ?>]" data-label="<?= e($pf['label']) ?>" <?= $pf['max'] > 0 ? 'maxlength="' . (int) $pf['max'] . '"' : '' ?> <?= $pf['required'] ? 'required' : '' ?>>
+                            <?php endif; ?>
+                            <?php if ($pf['type'] !== 'photo' && $pf['max'] > 0): ?>
+                                <small class="pers-counter" data-for="pers-<?= (int) $pi ?>">0 / <?= (int) $pf['max'] ?></small>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
             <?php endif; ?>
 

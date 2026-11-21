@@ -399,6 +399,7 @@ table.admin-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
     align-items: center;
     margin-bottom: 10px;
 }
+.variant-row.pers-row { grid-template-columns: 1.4fr 1fr 110px 100px 36px; }
 .variant-row input, .variant-row select {
     padding: 9px 10px;
     border: 1px solid var(--admin-border);
@@ -489,6 +490,7 @@ table.admin-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
     .sidebar-toggle { display: inline-flex; }
     .detail-grid { grid-template-columns: 1fr; }
     .variant-row { grid-template-columns: 1fr 1fr; }
+    .variant-row.pers-row { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 767px) {
     .admin-content { padding: 18px 14px; }

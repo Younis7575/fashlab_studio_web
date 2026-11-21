@@ -14,9 +14,13 @@ function cart_get(): array
     return $_SESSION['cart'] ?? [];
 }
 
-function cart_key(int $productId, ?int $variantId): string
+function cart_key(int $productId, ?int $variantId, array $personalisation = []): string
 {
-    return $productId . ':' . (int) $variantId;
+    $key = $productId . ':' . (int) $variantId;
+    // Each personalised box is its own line (different photo / name / message).
+    return $personalisation
+        ? $key . ':' . substr(md5((string) json_encode($personalisation)), 0, 10)
+        : $key;
 }
 
 /** Total number of pieces in the cart (sum of quantities). */
@@ -33,7 +37,7 @@ function cart_count(): int
  * Add a product (optionally a variant) to the cart.
  * @return array{ok: bool, message: string, count: int}
  */
-function cart_add(int $productId, ?int $variantId, int $qty): array
+function cart_add(int $productId, ?int $variantId, int $qty, array $personalisation = []): array
 {
     if ($qty < 1) {
         return ['ok' => false, 'message' => 'Quantity must be at least 1.', 'count' => cart_count()];
@@ -64,12 +68,16 @@ function cart_add(int $productId, ?int $variantId, int $qty): array
     }
 
     $cart = cart_get();
-    $key  = cart_key($productId, $variantId);
+    $key  = cart_key($productId, $variantId, $personalisation);
+    $line = ['product_id' => $productId, 'variant_id' => $variantId];
+    if ($personalisation) {
+        $line['personalisation'] = $personalisation;
+    }
     $newQty = (int) ($cart[$key]['qty'] ?? 0) + $qty;
 
     if ($newQty > $available) {
         $newQty = $available;
-        $cart[$key] = ['product_id' => $productId, 'variant_id' => $variantId, 'qty' => $newQty];
+        $cart[$key] = $line + ['qty' => $newQty];
         $_SESSION['cart'] = $cart;
         return [
             'ok' => false,
@@ -78,7 +86,7 @@ function cart_add(int $productId, ?int $variantId, int $qty): array
         ];
     }
 
-    $cart[$key] = ['product_id' => $productId, 'variant_id' => $variantId, 'qty' => $newQty];
+    $cart[$key] = $line + ['qty' => $newQty];
     $_SESSION['cart'] = $cart;
 
     return ['ok' => true, 'message' => 'Added to cart.', 'count' => cart_count()];
@@ -203,6 +211,7 @@ function cart_items(): array
             'line_total'    => $unitPrice * $qty,
             'available'     => $available,
             'variant_label' => $variantLabel,
+            'personalisation' => tc_personalisation_values($item['personalisation'] ?? null),
             'in_stock'      => $variant ? (int) $variant['stock_quantity'] : (int) $product['stock_quantity'],
         ];
     }

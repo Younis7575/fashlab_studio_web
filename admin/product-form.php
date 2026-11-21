@@ -22,6 +22,22 @@ if ($isEdit) {
 
 $allCategories = $db->query('SELECT id, name, parent_id FROM categories ORDER BY sort_order ASC, name ASC')->fetchAll();
 
+/** Store the personalisation field setup and per-image alt text posted from the form. */
+function save_posted_extras(PDO $db, int $productId): void
+{
+    if (tc_personalisation_enabled()) {
+        $db->prepare('UPDATE products SET personalisation_fields = ? WHERE id = ?')
+           ->execute([tc_posted_personalisation_json(), $productId]);
+    }
+    if (tc_alt_text_enabled()) {
+        $altStmt = $db->prepare('UPDATE product_images SET alt_text = ? WHERE id = ? AND product_id = ?');
+        foreach ((array) ($_POST['image_alt'] ?? []) as $imageId => $alt) {
+            $alt = mb_substr(trim((string) $alt), 0, 200);
+            $altStmt->execute([$alt !== '' ? $alt : null, (int) $imageId, $productId]);
+        }
+    }
+}
+
 /** Replace a product's variants with the rows posted from the form. */
 function save_posted_variants(PDO $db, int $productId): void
 {
@@ -148,6 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 /* Replace variants */
                 save_posted_variants($db, $productId);
+                save_posted_extras($db, $productId);
 
                 record_activity('product_update', 'product', $productId, 'Updated "' . $data['name'] . '"');
                 flash_set('success', 'Product updated — changes are live on the storefront.');
@@ -179,6 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 save_posted_variants($db, $productId);
+                save_posted_extras($db, $productId);
 
                 record_activity('product_create', 'product', $productId, 'Created "' . $data['name'] . '"');
                 flash_set('success', 'Product created successfully.');
@@ -202,6 +220,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'INSERT INTO product_images (product_id, image, sort_order, is_primary) VALUES (?, ?, ?, ?)'
             );
             $stmt->execute([$productId, $result['path'], (int) $db->query('SELECT COALESCE(MAX(sort_order), 0) + 1 FROM product_images WHERE product_id = ' . (int) $productId)->fetchColumn(), $isPrimary]);
+            $newAlt = post('alt_text', 200);
+            if ($newAlt !== '' && tc_alt_text_enabled()) {
+                $db->prepare('UPDATE product_images SET alt_text = ? WHERE id = ?')->execute([$newAlt, (int) $db->lastInsertId()]);
+            }
             record_activity('product_image_add', 'product', $productId, 'Added product image');
             flash_set('success', 'Image uploaded.');
         } else {
@@ -419,6 +441,38 @@ ob_start();
                 <button type="button" class="btn btn-outline btn-sm" id="addVariantRow"><i class="fa-solid fa-plus"></i> Add Variant</button>
             </div>
 
+            <?php if (tc_personalisation_enabled()): ?>
+            <?php $persFields = $product ? tc_product_personalisation($product) : []; ?>
+            <div class="card">
+                <div class="card-title">Personalisation <small style="font-weight:400;color:var(--admin-muted)">(optional — what the customer fills in before adding to cart)</small></div>
+                <div id="persRows">
+                    <?php foreach ($persFields ?: [null] as $pf): ?>
+                        <div class="variant-row pers-row">
+                            <input type="text" name="pers_label[]" placeholder="Label (e.g. Your photo)" maxlength="80" value="<?= e($pf['label'] ?? '') ?>">
+                            <select name="pers_type[]">
+                                <?php foreach (TC_PERSONALISATION_TYPES as $tKey => $tLabel): ?>
+                                    <option value="<?= e($tKey) ?>" <?= ($pf['type'] ?? 'text') === $tKey ? 'selected' : '' ?>><?= e($tLabel) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <select name="pers_required[]">
+                                <option value="1" <?= !empty($pf['required']) ? 'selected' : '' ?>>Required</option>
+                                <option value="0" <?= empty($pf['required']) ? 'selected' : '' ?>>Optional</option>
+                            </select>
+                            <input type="number" name="pers_max[]" placeholder="Max chars" min="0" max="1000" value="<?= !empty($pf['max']) ? (int) $pf['max'] : '' ?>">
+                            <button type="button" class="remove-variant" title="Remove row">&times;</button>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <button type="button" class="btn btn-outline btn-sm" id="addPersRow"><i class="fa-solid fa-plus"></i> Add Field</button>
+                <p class="help" style="margin-top:8px">Leave every label empty for no personalisation. Max chars is ignored for photo fields.</p>
+            </div>
+            <?php elseif (count(tc_pending_schema_updates()) > 0): ?>
+            <div class="card">
+                <div class="card-title">Personalisation</div>
+                <p class="help">Apply the <a href="<?= e(url('/admin/db-update.php')) ?>">Database Update</a> to enable personalisation fields and image alt text.</p>
+            </div>
+            <?php endif; ?>
+
         </div>
 
         <div>
@@ -461,7 +515,10 @@ ob_start();
                     <div class="image-grid" style="margin-bottom:16px">
                         <?php foreach ($images as $img): ?>
                             <div class="img-item">
-                                <img src="<?= e(image_url($img['image'] ?? '')) ?>" alt="">
+                                <img src="<?= e(image_url($img['image'] ?? '')) ?>" alt="<?= e($img['alt_text'] ?? '') ?>">
+                                <?php if (tc_alt_text_enabled()): ?>
+                                    <input type="text" name="image_alt[<?= (int) $img['id'] ?>]" maxlength="200" placeholder="Alt text" value="<?= e($img['alt_text'] ?? '') ?>" style="width:100%;margin-top:6px;padding:6px 8px;font-size:12px;border:1px solid var(--admin-border);border-radius:5px" aria-label="Alt text">
+                                <?php endif; ?>
                                 <div class="img-meta">
                                     <span>
                                         <?php if ((int) $img['is_primary'] === 1): ?>
@@ -486,6 +543,10 @@ ob_start();
                     Click to choose images (JPG, PNG, WebP, GIF — max <?= (int) round(UPLOAD_MAX_SIZE / 1048576) ?> MB)
                     <input type="file" name="image" form="imgUpload" accept="image/jpeg,image/png,image/webp,image/gif" required>
                 </label>
+                <?php if (tc_alt_text_enabled()): ?>
+                    <input type="text" name="alt_text" form="imgUpload" maxlength="200" placeholder="Alt text for this image (optional)" style="width:100%;margin-top:10px;padding:8px 10px;border:1px solid var(--admin-border);border-radius:6px">
+                    <p class="help" style="margin-top:6px">Edit alt text of existing images above, then click Save Changes.</p>
+                <?php endif; ?>
                 <button type="submit" form="imgUpload" class="btn btn-outline btn-sm" style="margin-top:12px"><i class="fa-solid fa-upload"></i> Upload Image</button>
             </div>
             <?php endif; ?>
@@ -543,6 +604,21 @@ ob_start();
             rows.appendChild(div);
         }
         document.getElementById('addVariantRow').addEventListener('click', addRow);
+
+        var persRows = document.getElementById('persRows');
+        if (persRows) {
+            var persTemplate = persRows.querySelector('.pers-row').cloneNode(true);
+            document.getElementById('addPersRow').addEventListener('click', function () {
+                var row = persTemplate.cloneNode(true);
+                row.querySelectorAll('input').forEach(function (i) { i.value = ''; });
+                row.querySelector('select[name="pers_type[]"]').value = 'text';
+                row.querySelector('select[name="pers_required[]"]').value = '1';
+                persRows.appendChild(row);
+            });
+            persRows.addEventListener('click', function (e) {
+                if (e.target.classList.contains('remove-variant')) e.target.closest('.pers-row').remove();
+            });
+        }
         rows.addEventListener('click', function (e) {
             if (e.target.classList.contains('remove-variant')) e.target.closest('.variant-row').remove();
         });

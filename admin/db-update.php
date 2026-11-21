@@ -20,17 +20,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach (tc_pending_schema_updates() as $update) {
             try {
                 $db->exec($update['ddl']);
-                $applied[] = $update['table'] . '.' . $update['column'];
+                $applied[] = $update['table'] . ($update['column'] !== null ? '.' . $update['column'] : ' table');
             } catch (Throwable $e) {
                 error_log('[db-update] ' . $e->getMessage());
-                $failed[] = $update['table'] . '.' . $update['column'];
+                $failed[] = $update['table'] . ($update['column'] !== null ? '.' . $update['column'] : ' table');
             }
         }
         if ($applied) {
             record_activity('db_update', null, null, 'Applied database update: ' . implode(', ', $applied));
         }
         if ($failed) {
-            flash_set('error', 'Could not apply: ' . implode(', ', $failed) . '. Import migration-personalisation.sql in phpMyAdmin instead.');
+            flash_set('error', 'Could not apply: ' . implode(', ', $failed) . '. Import the matching migration-*.sql file in phpMyAdmin instead.');
         } elseif ($applied) {
             flash_set('success', 'Database updated: ' . implode(', ', $applied) . '.');
         } else {
@@ -77,7 +77,7 @@ function tc_migration_status(): array
 $migrationStatus = tc_migration_status();
 $updates = tc_schema_updates();
 $pending = tc_pending_schema_updates();
-$pendingKeys = array_map(static fn(array $u): string => $u['table'] . '.' . $u['column'], $pending);
+$pendingKeys = array_map(static fn(array $u): string => $u['table'] . '.' . ($u['column'] ?? ''), $pending);
 
 $page_title = 'Database Update';
 $active     = 'db_update';
@@ -88,7 +88,7 @@ ob_start();
 <div class="page-header">
     <div>
         <h1>Database Update</h1>
-        <p>Adds the columns needed for image alt text and product personalisation. Only new, empty columns are added — no existing data is changed.</p>
+        <p>Applies pending additive database changes (new empty tables / columns). No existing data is changed.</p>
     </div>
 </div>
 
@@ -99,7 +99,7 @@ ob_start();
             <thead><tr><th>Change</th><th>Status</th></tr></thead>
             <tbody>
                 <?php foreach ($updates as $u): ?>
-                    <?php $isPending = in_array($u['table'] . '.' . $u['column'], $pendingKeys, true); ?>
+                    <?php $isPending = in_array($u['table'] . '.' . ($u['column'] ?? ''), $pendingKeys, true); ?>
                     <tr>
                         <td><?= e($u['label']) ?></td>
                         <td><span class="badge <?= $isPending ? 'gold' : 'green' ?>"><?= $isPending ? 'Pending' : 'Applied' ?></span></td>

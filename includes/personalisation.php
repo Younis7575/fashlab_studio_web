@@ -13,10 +13,33 @@ declare(strict_types=1);
    SCHEMA UPDATES
    ============================================================================ */
 
-/** Additive column changes this release needs. Mirrors migration-personalisation.sql. */
+/**
+ * Additive schema changes the one-click Database Update can apply.
+ * Column entries mirror migration-personalisation.sql; table entries
+ * ('column' => null) mirror the CREATE TABLE in their migration file.
+ */
 function tc_schema_updates(): array
 {
     return [
+        [
+            'table'  => 'page_views',
+            'column' => null,
+            'label'  => 'Visitor analytics table (migration-analytics.sql)',
+            'ddl'    => "CREATE TABLE IF NOT EXISTS `page_views` (
+                `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+                `session_hash` CHAR(64) NOT NULL,
+                `path` VARCHAR(500) NOT NULL,
+                `page_type` VARCHAR(30) NOT NULL DEFAULT 'other',
+                `referrer` VARCHAR(500) NULL DEFAULT NULL,
+                `device` ENUM('desktop','tablet','mobile') NOT NULL DEFAULT 'desktop',
+                `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                KEY `idx_pv_created` (`created_at`),
+                KEY `idx_pv_session` (`session_hash`, `created_at`),
+                KEY `idx_pv_path` (`path`(120)),
+                KEY `idx_pv_device` (`device`, `created_at`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+        ],
         [
             'table'  => 'product_images',
             'column' => 'alt_text',
@@ -43,7 +66,9 @@ function tc_pending_schema_updates(): array
 {
     return array_values(array_filter(
         tc_schema_updates(),
-        static fn(array $u): bool => !tc_column_exists($u['table'], $u['column'])
+        static fn(array $u): bool => $u['column'] === null
+            ? !tc_table_exists($u['table'])
+            : !tc_column_exists($u['table'], $u['column'])
     ));
 }
 

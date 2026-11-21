@@ -25,6 +25,7 @@ $navItems = [
     'reports'   => ['label' => 'Reports',             'icon' => 'fa-chart-column',   'href' => '/admin/reports.php'],
     'analytics' => ['label' => 'Analytics',            'icon' => 'fa-chart-line',     'href' => '/admin/analytics.php'],
     'settings'  => ['label' => 'Settings',            'icon' => 'fa-gear',           'href' => '/admin/settings.php'],
+    'optimize_images' => ['label' => 'Optimise Images', 'icon' => 'fa-image',         'href' => '/admin/optimize-images.php'],
 ];
 $pendingDbUpdates = count(tc_pending_schema_updates());
 if ($pendingDbUpdates > 0 || ($active ?? '') === 'db_update') {

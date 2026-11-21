@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/../includes/bootstrap.php';
+require_once __DIR__ . '/../includes/api-auth.php';
 
 /*
  * Read-only server diagnostics: PHP configuration, OPcache, database latency,
@@ -9,6 +10,33 @@ require_once __DIR__ . '/../includes/bootstrap.php';
 
 $admin = require_admin();
 $db = db();
+
+/* The only action here: remove mobile-app tokens that hold nothing. */
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_require($_POST['csrf_token'] ?? null);
+    if (post('action', 30) === 'clean_tokens' && api_tokens_available()) {
+        @set_time_limit(120);
+        $removed = 0;
+        for ($i = 0; $i < 100; $i++) {
+            $n = api_tokens_gc(1000);
+            $removed += $n;
+            if ($n === 0) break;
+        }
+        record_activity('api_tokens_cleanup', null, null, 'Removed ' . $removed . ' empty/expired app tokens');
+        flash_set('success', 'Removed ' . $removed . ' empty or expired app tokens.');
+    }
+    redirect(url('/admin/server-health.php'));
+}
+
+$tokenStats = null;
+if (api_tokens_available()) {
+    $tokenStats = [
+        'total'   => (int) $db->query('SELECT COUNT(*) FROM api_tokens')->fetchColumn(),
+        'expired' => (int) $db->query('SELECT COUNT(*) FROM api_tokens WHERE expires_at IS NOT NULL AND expires_at < NOW()')->fetchColumn(),
+        'empty'   => (int) $db->query('SELECT COUNT(*) FROM api_tokens WHERE ' . api_tokens_empty_idle_sql())->fetchColumn(),
+        'today'   => (int) $db->query('SELECT COUNT(*) FROM api_tokens WHERE created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)')->fetchColumn(),
+    ];
+}
 
 $ms = static fn(float $start): float => round((microtime(true) - $start) * 1000, 1);
 
@@ -155,6 +183,26 @@ ob_start();
     <?= $renderTable('PHP', $php) ?>
     <?= $renderTable('Database', $database) ?>
     <?= $renderTable('Storage', $storage) ?>
+
+    <?php if ($tokenStats !== null): ?>
+    <div class="card" style="margin-bottom:18px">
+        <div class="card-title">Mobile app tokens</div>
+        <p style="font-size:14px">
+            <strong><?= $tokenStats['total'] ?></strong> total —
+            <?= $tokenStats['today'] ?> created in the last 24 h,
+            <?= $tokenStats['expired'] ?> expired,
+            <strong><?= $tokenStats['empty'] ?></strong> empty and idle (no cart, coupon or wishlist; unused for a day).
+        </p>
+        <p class="help">Removing empty tokens loses nothing: that phone just gets a new token next time. This also runs automatically on about 1 in 100 app requests.</p>
+        <?php if ($tokenStats['expired'] + $tokenStats['empty'] > 0): ?>
+            <form method="post" style="margin-top:10px">
+                <?= csrf_field() ?>
+                <input type="hidden" name="action" value="clean_tokens">
+                <button type="submit" class="btn btn-outline btn-sm"><i class="fa-solid fa-broom"></i> Clean up <?= $tokenStats['expired'] + $tokenStats['empty'] ?> tokens now</button>
+            </form>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
 
     <div class="card" style="margin-bottom:18px">
         <div class="card-title">Self test (server → its own website)</div>

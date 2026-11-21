@@ -69,6 +69,35 @@ function api_token_revoke(string $token): void
     db()->prepare('DELETE FROM api_tokens WHERE token = ?')->execute([$token]);
 }
 
+/**
+ * SQL condition (on table/alias $t) for tokens that carry nothing: no cart, no coupon,
+ * no wishlist rows, and idle for at least a day. Deleting one is harmless —
+ * that device simply receives a fresh token on its next request.
+ */
+function api_tokens_empty_idle_sql(string $t = 'api_tokens'): string
+{
+    $cond = "$t.last_used_at < DATE_SUB(NOW(), INTERVAL 1 DAY)
+             AND ($t.cart_json IS NULL OR $t.cart_json IN ('', '[]', '{}', '" . API_EMPTY_STATE . "'))
+             AND ($t.coupon_code IS NULL OR $t.coupon_code = '')";
+    if (tc_table_exists('wishlist_items')) {
+        $cond .= " AND NOT EXISTS (SELECT 1 FROM wishlist_items w WHERE w.session_id = $t.token)";
+    }
+    return $cond;
+}
+
+/**
+ * Housekeeping: remove expired tokens and idle tokens that hold no state.
+ * Returns the number of rows deleted (at most $limit per category).
+ */
+function api_tokens_gc(int $limit = 500): int
+{
+    $limit = max(1, $limit);
+    $db = db();
+    $deleted = $db->exec('DELETE FROM api_tokens WHERE expires_at IS NOT NULL AND expires_at < NOW() LIMIT ' . $limit);
+    $deleted += $db->exec('DELETE FROM api_tokens WHERE ' . api_tokens_empty_idle_sql() . ' LIMIT ' . $limit);
+    return (int) $deleted;
+}
+
 /* ---------------------------------------------------------------------------
    Cart / coupon / wishlist state carried by the token
 --------------------------------------------------------------------------- */

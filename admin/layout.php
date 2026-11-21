@@ -26,6 +26,7 @@ $navItems = [
     'analytics' => ['label' => 'Analytics',            'icon' => 'fa-chart-line',     'href' => '/admin/analytics.php'],
     'settings'  => ['label' => 'Settings',            'icon' => 'fa-gear',           'href' => '/admin/settings.php'],
     'optimize_images' => ['label' => 'Optimise Images', 'icon' => 'fa-image',         'href' => '/admin/optimize-images.php'],
+    'server_health' => ['label' => 'Server Health',   'icon' => 'fa-heart-pulse',   'href' => '/admin/server-health.php'],
 ];
 $pendingDbUpdates = count(tc_pending_schema_updates());
 $navItems['db_update'] = ['label' => 'Database Update', 'icon' => 'fa-database', 'href' => '/admin/db-update.php', 'badge' => $pendingDbUpdates];

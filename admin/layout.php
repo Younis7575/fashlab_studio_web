@@ -28,9 +28,7 @@ $navItems = [
     'optimize_images' => ['label' => 'Optimise Images', 'icon' => 'fa-image',         'href' => '/admin/optimize-images.php'],
 ];
 $pendingDbUpdates = count(tc_pending_schema_updates());
-if ($pendingDbUpdates > 0 || ($active ?? '') === 'db_update') {
-    $navItems['db_update'] = ['label' => 'Database Update', 'icon' => 'fa-database', 'href' => '/admin/db-update.php', 'badge' => $pendingDbUpdates];
-}
+$navItems['db_update'] = ['label' => 'Database Update', 'icon' => 'fa-database', 'href' => '/admin/db-update.php', 'badge' => $pendingDbUpdates];
 
 $flashes = flash_get();
 ?>

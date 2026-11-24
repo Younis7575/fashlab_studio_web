@@ -88,7 +88,7 @@ function tc_category_department(array $cat): string
     if (preg_match('/\bcaps?\b|gajr|jewel(?!.*bouquet)|\bbags?\b|scarf|hijab|clutch|bangle|earring/', $text)) {
         return 'accessories';
     }
-    if (preg_match('/nikkah|\bpens?\b|bouquet|gift|basket|hamper|surprise|\bbox|chocolate|snack|flower|money|cake/', $text)) {
+    if (preg_match('/nikkah|\bpens?\b|frames?\b|birthday|bouquet|gift|basket|hamper|surprise|\bbox|chocolate|snack|flower|money|cake/', $text)) {
         return 'gifts';
     }
     return 'women';
@@ -99,6 +99,7 @@ function tc_gift_group(array $cat): string
 {
     $text = strtolower((string) $cat['name'] . ' ' . (string) $cat['slug']);
     if (preg_match('/nikkah|\bpens?\b/', $text)) return 'Nikkah & Wedding';
+    if (preg_match('/frames?\b|keepsake/', $text)) return 'Frames & Keepsakes';
     if (str_contains($text, 'bouquet')) return 'Bouquets';
     if (preg_match('/basket|surprise|hamper|package/', $text)) return 'Baskets & Surprises';
     return 'Gift Boxes';
@@ -125,7 +126,7 @@ function tc_nav_tree(): array
 
     $sections = [
         'women'       => ['item' => $v('Women', 'shop.php?dept=women'), 'groups' => ['Shop by Category' => [], 'Fabrics' => [], 'Occasions' => [], 'Shop by Price' => []]],
-        'gifts'       => ['item' => $v('Gifts & Surprises', 'shop.php?dept=gifts'), 'groups' => ['Gift Boxes' => [], 'Baskets & Surprises' => [], 'Bouquets' => [], 'Nikkah & Wedding' => []]],
+        'gifts'       => ['item' => $v('Gifts & Surprises', 'shop.php?dept=gifts'), 'groups' => ['Gift Boxes' => [], 'Baskets & Surprises' => [], 'Bouquets' => [], 'Nikkah & Wedding' => [], 'Frames & Keepsakes' => []]],
         'accessories' => ['item' => $v('Accessories', 'shop.php?dept=accessories'), 'groups' => ['Accessories' => []]],
     ];
     $seen = [];

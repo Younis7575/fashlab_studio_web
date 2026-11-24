@@ -154,7 +154,9 @@ function tc_nav_tree(): array
         // Merchandising categories already appear under Shop → Discover.
         if (preg_match('/^(new[- ]?arrivals?|new[- ]?in|best[- ]?sellers?|sale|trending|featured)$/i', (string) $cat['name'])) continue;
         $row = $virtual((string) $cat['name'], 'category.php?slug=' . $slug);
-        $add(in_array($slug, $giftSlugs, true) ? 'gifts' : 'clothing', in_array($slug, $giftSlugs, true) ? 'Gifts' : 'Clothing', $row);
+        $isGift = in_array($slug, $giftSlugs, true)
+            || preg_match('/bouquet|gift|basket|hamper|surprise|gajr|cap\b|caps|box|chocolate|snack|flower|money/i', (string) $cat['name'] . ' ' . $slug);
+        $add($isGift ? 'gifts' : 'clothing', $isGift ? 'Gifts' : 'Clothing', $row);
     }
 
     $tree = [];

@@ -42,6 +42,21 @@ function get_products(array $filters = []): array
                              WHERE pc.product_id = p.id AND pc.category_id = ?)';
         $params[] = (int) $filters['category_id'];
     }
+    // Several categories (shop filter checkboxes) and storefront departments.
+    $catIds = array_values(array_filter(array_map('intval', (array) ($filters['category_ids'] ?? []))));
+    if (!empty($filters['dept']) && function_exists('tc_category_department')) {
+        $deptIds = [];
+        foreach (db()->query('SELECT id, name, slug FROM categories WHERE status = 1')->fetchAll() as $c) {
+            if (tc_category_department($c) === $filters['dept']) $deptIds[] = (int) $c['id'];
+        }
+        $catIds = $catIds ? array_values(array_intersect($catIds, $deptIds)) : $deptIds;
+        if (!$catIds) $catIds = [0];
+    }
+    if ($catIds) {
+        $where[] = 'EXISTS (SELECT 1 FROM product_categories pcm
+                             WHERE pcm.product_id = p.id AND pcm.category_id IN (' . implode(',', array_fill(0, count($catIds), '?')) . '))';
+        array_push($params, ...$catIds);
+    }
 
     $q = trim((string) ($filters['q'] ?? ''));
     if ($q !== '') {

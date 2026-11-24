@@ -60,7 +60,7 @@ function tc_nav_link_live(string $rawUrl): bool
             $col = function_exists('tc_collection') ? tc_collection((string) ($query['slug'] ?? '')) : null;
             $live = $col !== null && (int) ($col['product_count'] ?? 0) > 0;
         } elseif ($path === 'shop.php') {
-            $filters = array_intersect_key($query, array_flip(['q', 'price', 'sale', 'fabric', 'color', 'size', 'featured', 'availability']));
+            $filters = array_intersect_key($query, array_flip(['q', 'price', 'sale', 'fabric', 'color', 'size', 'featured', 'availability', 'dept']));
             $filters['per_page'] = 1;
             $filters['page'] = 1;
             $live = (int) (get_products($filters)['total'] ?? 0) > 0;
@@ -81,14 +81,34 @@ function tc_nav_cache_clear(): void
     @unlink(tc_nav_cache_file());
 }
 
+/** Department for a category, by name / slug: women | gifts | accessories. */
+function tc_category_department(array $cat): string
+{
+    $text = strtolower((string) ($cat['name'] ?? '') . ' ' . (string) ($cat['slug'] ?? ''));
+    if (preg_match('/\bcaps?\b|gajr|jewel(?!.*bouquet)|\bbags?\b|scarf|hijab|clutch|bangle|earring/', $text)) {
+        return 'accessories';
+    }
+    if (preg_match('/bouquet|gift|basket|hamper|surprise|\bbox|chocolate|snack|flower|money|cake/', $text)) {
+        return 'gifts';
+    }
+    return 'women';
+}
+
+/** Sub-group heading inside the Gifts department. */
+function tc_gift_group(array $cat): string
+{
+    $text = strtolower((string) $cat['name'] . ' ' . (string) $cat['slug']);
+    if (str_contains($text, 'bouquet')) return 'Bouquets';
+    if (preg_match('/basket|surprise|hamper|package/', $text)) return 'Baskets & Surprises';
+    return 'Gift Boxes';
+}
+
 /**
- * Storefront menu structure, built at render time from menu_items without
- * writing to the database:
- *   SHOP (Discover + Shop by Price) · CLOTHING · FABRICS · OCCASIONS · GIFTS · SALE
- * Seeded Shop groups are split into their own menus, real clothing / gift
- * categories are added, and top-level items that now live in the drawer or
- * footer (Collections, New In, Best Sellers, About, Contact…) are left out.
- * Every link is then filtered by tc_nav_link_live().
+ * Storefront menu, built at render time (no database writes):
+ *   NEW IN · WOMEN · GIFTS & SURPRISES · ACCESSORIES · SALE
+ * Women = clothing categories + the seeded fabric / occasion / price links;
+ * Gifts and Accessories = their categories. Every link is filtered by
+ * tc_nav_link_live(), so nothing leads to an empty page.
  *
  * Returns [ ['item' => row, 'url' => string, 'groups' => ['Heading' => [rows]]], ... ]
  */
@@ -99,26 +119,15 @@ function tc_nav_tree(): array
         return $tree;
     }
 
-    $raw = tc_menu_tree('main');
-    $virtual = static fn(string $label, string $url, string $group = ''): array =>
+    $v = static fn(string $label, string $url, string $group = ''): array =>
         ['id' => 0, 'label' => $label, 'url' => $url, 'group_label' => $group];
 
     $sections = [
-        'shop'      => ['item' => $virtual('Shop', 'shop.php'), 'groups' => []],
-        'clothing'  => ['item' => $virtual('Clothing', 'shop.php'), 'groups' => []],
-        'fabrics'   => ['item' => $virtual('Fabrics', 'shop.php'), 'groups' => []],
-        'occasions' => ['item' => $virtual('Occasions', 'shop.php'), 'groups' => []],
-        'gifts'     => ['item' => $virtual('Gifts', 'collections.php'), 'groups' => []],
+        'women'       => ['item' => $v('Women', 'shop.php?dept=women'), 'groups' => ['Shop by Category' => [], 'Fabrics' => [], 'Occasions' => [], 'Shop by Price' => []]],
+        'gifts'       => ['item' => $v('Gifts & Surprises', 'shop.php?dept=gifts'), 'groups' => ['Gift Boxes' => [], 'Baskets & Surprises' => [], 'Bouquets' => []]],
+        'accessories' => ['item' => $v('Accessories', 'shop.php?dept=accessories'), 'groups' => ['Accessories' => []]],
     ];
-    $groupMap = [
-        'clothing' => ['clothing', 'Clothing'], 'shop by fabric' => ['fabrics', 'Fabrics'], 'fabrics' => ['fabrics', 'Fabrics'],
-        'gifts' => ['gifts', 'Gifts'], 'featured' => ['shop', 'Discover'], 'discover' => ['shop', 'Discover'],
-        'shop by price' => ['shop', 'Shop by Price'],
-    ];
-    $hiddenTop = ['collections', 'new in', 'best sellers', 'style edit', 'journal', 'about', 'contact'];
-    $extraTop = [];
     $seen = [];
-
     $add = static function (string $section, string $group, array $row) use (&$sections, &$seen): void {
         $key = strtolower(trim((string) $row['url']));
         if (isset($seen[$key])) return;
@@ -126,61 +135,49 @@ function tc_nav_tree(): array
         $sections[$section]['groups'][$group][] = $row;
     };
 
-    foreach ($raw as $node) {
-        $item  = $node['item'];
-        $label = strtolower(trim((string) $item['label']));
-        if ($label === 'shop') {
-            foreach ($node['children'] as $child) {
-                $g = strtolower(trim((string) ($child['item']['group_label'] ?? '')));
-                [$section, $heading] = $groupMap[$g] ?? ['shop', 'Discover'];
-                $add($section, $heading, $child['item']);
-            }
-        } elseif ($label === 'occasions') {
-            foreach ($node['children'] as $child) {
-                $add('occasions', 'Occasions', $child['item']);
-            }
-        } elseif ($label === 'sale') {
-            $extraTop['sale'] = $item;
-        } elseif (!in_array($label, $hiddenTop, true)) {
-            // Anything an admin adds later still shows up.
-            $extraTop[$label] = ['node' => $node];
+    // 1. Real categories → departments.
+    foreach (tc_nav_categories() as $slug => $cat) {
+        if (preg_match('/^(new[- ]?arrivals?|new[- ]?in|best[- ]?sellers?|sale|trending|featured)$/i', (string) $cat['name'])) continue;
+        $dept = tc_category_department($cat);
+        if ($dept === 'women' && !empty($cat['parent_id'])) continue;
+        $group = $dept === 'women' ? 'Shop by Category' : ($dept === 'gifts' ? tc_gift_group($cat) : 'Accessories');
+        $add($dept, $group, $v((string) $cat['name'], 'category.php?slug=' . $slug));
+    }
+
+    // 2. Seeded menu links: fabrics / occasions / price → Women.
+    $sale = null;
+    $extra = [];
+    foreach (tc_menu_tree('main') as $node) {
+        $label = strtolower(trim((string) $node['item']['label']));
+        if ($label === 'sale') { $sale = $node['item']; continue; }
+        if (in_array($label, ['collections', 'new in', 'best sellers', 'style edit', 'journal', 'about', 'contact'], true)) continue;
+        if (!in_array($label, ['shop', 'occasions'], true)) { $extra[] = $node; continue; }
+        foreach ($node['children'] as $child) {
+            $row = $child['item'];
+            $g = strtolower(trim((string) ($row['group_label'] ?? '')));
+            if ($label === 'occasions')                 $add('women', 'Occasions', $row);
+            elseif (str_contains($g, 'fabric'))         $add('women', 'Fabrics', $row);
+            elseif (str_contains($g, 'price'))          $add('women', 'Shop by Price', $row);
+            // Clothing keyword links and Featured / Gifts groups are covered by categories and NEW IN / SALE.
         }
     }
 
-    // Real categories that exist in the catalogue.
-    $giftSlugs = ['luxury-gift-boxes', 'luxury-heart-gift-boxes', 'jewelry-bouquets', 'customized-caps'];
-    foreach (tc_nav_categories() as $slug => $cat) {
-        if (!empty($cat['parent_id']) && !in_array($slug, $giftSlugs, true)) continue;
-        // Merchandising categories already appear under Shop → Discover.
-        if (preg_match('/^(new[- ]?arrivals?|new[- ]?in|best[- ]?sellers?|sale|trending|featured)$/i', (string) $cat['name'])) continue;
-        $row = $virtual((string) $cat['name'], 'category.php?slug=' . $slug);
-        $isGift = in_array($slug, $giftSlugs, true)
-            || preg_match('/bouquet|gift|basket|hamper|surprise|gajr|cap\b|caps|box|chocolate|snack|flower|money/i', (string) $cat['name'] . ' ' . $slug);
-        $add($isGift ? 'gifts' : 'clothing', $isGift ? 'Gifts' : 'Clothing', $row);
-    }
-
     $tree = [];
+    $newIn = $v('New In', 'shop.php?sort=newest');
+    if (tc_nav_link_live($newIn['url'])) {
+        $tree[] = ['item' => $newIn, 'url' => tc_menu_url($newIn), 'groups' => []];
+    }
     foreach ($sections as $sec) {
         $groups = [];
         foreach ($sec['groups'] as $heading => $rows) {
             $live = array_values(array_filter($rows, static fn(array $r): bool => tc_nav_link_live((string) $r['url'])));
             if ($live) $groups[$heading] = $live;
         }
-        if (!$groups) continue;
-        if (isset($groups['Discover'])) {
-            $groups = ['Discover' => $groups['Discover']] + $groups;
+        if ($groups) {
+            $tree[] = ['item' => $sec['item'], 'url' => tc_menu_url($sec['item']), 'groups' => $groups];
         }
-        // A single link group under the menu's own name needs no repeated heading.
-        $tree[] = ['item' => $sec['item'], 'url' => tc_menu_url($sec['item']), 'groups' => $groups];
     }
-    foreach ($extraTop as $key => $entry) {
-        if ($key === 'sale') {
-            if (tc_nav_link_live((string) $entry['url'])) {
-                $tree[] = ['item' => $entry, 'url' => tc_menu_url($entry), 'groups' => []];
-            }
-            continue;
-        }
-        $node = $entry['node'];
+    foreach ($extra as $node) {
         $groups = [];
         foreach ($node['children'] as $child) {
             if (tc_nav_link_live((string) $child['item']['url'])) {
@@ -190,6 +187,9 @@ function tc_nav_tree(): array
         if ($groups || tc_nav_link_live((string) $node['item']['url'])) {
             $tree[] = ['item' => $node['item'], 'url' => tc_menu_url($node['item']), 'groups' => $groups];
         }
+    }
+    if ($sale && tc_nav_link_live((string) $sale['url'])) {
+        $tree[] = ['item' => $sale, 'url' => tc_menu_url($sale), 'groups' => []];
     }
     return $tree;
 }

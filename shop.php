@@ -19,6 +19,9 @@ $availability = get_string('availability', 20) === 'in_stock';
 $sale         = get_string('sale', 10) === '1';
 $featured     = get_string('featured', 10) === '1';
 $sort         = get_string('sort', 30);
+$dept         = get_string('dept', 20);
+if (!in_array($dept, ['women', 'gifts', 'accessories'], true)) $dept = '';
+$categoryIds  = array_values(array_filter(array_map('intval', explode(',', implode(',', (array) ($_GET['category'] ?? []))))));
 $page         = max(1, (int) ($_GET['page'] ?? 1));
 $perPage      = 12;
 
@@ -78,6 +81,18 @@ if ($rawSize !== '') {
 
 if ($price !== '') $filters['price'] = $price;
 
+// Search, category, department, flags, sort and paging must reach the query too
+// (previously only fabric / colour / size / price did, so these were ignored).
+if ($q !== '')       $filters['q'] = $q;
+if ($categoryIds)    $filters['category_ids'] = $categoryIds;
+if ($dept !== '')    $filters['dept'] = $dept;
+if ($availability)   $filters['availability'] = 'in_stock';
+if ($sale)           $filters['sale'] = 1;
+if ($featured)       $filters['featured'] = 1;
+$filters['sort']     = $sort;
+$filters['page']     = $page;
+$filters['per_page'] = $perPage;
+
 /* ---------------------------------------------------------------------------
    Canonical query-string building (kept for links). Every value is already
    validated, so no 'fabric=lawn,mixed' ever escapes this page consumed by a
@@ -94,6 +109,7 @@ if ($availability)        $baseQueryParts['availability'] = 'in_stock';
 if ($sale)                $baseQueryParts['sale'] = '1';
 if ($featured)            $baseQueryParts['featured'] = '1';
 if ($sort !== 'newest')   $baseQueryParts['sort'] = $sort;
+if ($dept !== '')         $baseQueryParts['dept'] = $dept;
 $baseQuery = http_build_query($baseQueryParts);
 
 $result = get_products($filters);
@@ -112,6 +128,7 @@ if ($availability)        $qsParts['availability'] = 'in_stock';
 if ($sale)                $qsParts['sale'] = '1';
 if ($featured)            $qsParts['featured'] = '1';
 if ($sort !== 'newest')   $qsParts['sort'] = $sort;
+if ($dept !== '')         $qsParts['dept'] = $dept;
 $baseQuery = http_build_query($baseQueryParts);
 
 /* AJAX request: return only the grid + result count + pagination. */
@@ -124,7 +141,16 @@ if (is_ajax()) {
     exit;
 }
 
-$page_title      = "Shop Women's Clothing Online in Pakistan";
+$deptTitles = ['women' => "Women's Fashion", 'gifts' => 'Gifts & Surprises', 'accessories' => 'Accessories'];
+$listingHeading = $q !== '' ? 'Search: “' . $q . '”'
+    : ($dept !== '' ? $deptTitles[$dept]
+    : ($sale ? 'Sale' : ($sort === 'newest' && isset($_GET['sort']) ? 'New Arrivals' : ($sort === 'best_selling' ? 'Best Sellers' : 'Shop All'))));
+$listingIntro = [
+    'women'       => 'Unstitched suits, ready-to-wear and seasonal fabrics.',
+    'gifts'       => 'Handmade gift boxes, bouquets, baskets and surprise packages — personalised for every occasion.',
+    'accessories' => 'Customized caps, gajray and finishing touches.',
+][$dept] ?? 'Women’s fashion, handmade gifts and accessories from ' . setting('store_name') . '.';
+$page_title      = $listingHeading === 'Shop All' ? 'Shop Online in Pakistan' : $listingHeading;
 $meta_description = "Shop women's clothing online in Pakistan — stitched and unstitched suits, lawn, formal and casual wear from " . setting('store_name')
     . ', with free delivery on orders above ' . money((float) setting('free_shipping_threshold', '8000')) . '.';
 $active_nav      = 'shop.php';
@@ -144,8 +170,8 @@ require __DIR__ . '/includes/storefront-header.php';
     <div class="shop-hero-overlay"></div>
     <div class="container shop-hero-content">
         <p class="section-label">THE <?= e(strtoupper(setting('store_name'))) ?> COLLECTION</p>
-        <h1>Shop Women's Clothing</h1>
-        <p>Discover thoughtfully designed pieces, refined details and timeless styles for every occasion.</p>
+        <h1><?= e($listingHeading) ?></h1>
+        <p><?= e($listingIntro) ?></p>
     </div>
 </section>
 

@@ -260,3 +260,13 @@ body.fx-lock { overflow: hidden; }
 .fx-mega-col:only-child { columns: 3 180px; column-gap: var(--fx-s6); }
 .fx-mega-col:only-child .fx-mega-heading { column-span: all; }
 .fx-mega-col a { break-inside: avoid; }
+
+/* ---------- Spacing clean-up (legacy sections) ----------------------------- */
+.section-padding { padding-top: clamp(40px, 5vw, 72px) !important; padding-bottom: clamp(40px, 5vw, 72px) !important; }
+.lx-experience { padding-top: clamp(48px, 6vw, 80px) !important; padding-bottom: clamp(48px, 6vw, 80px) !important; }
+.newsletter-section { padding-top: clamp(40px, 5vw, 64px) !important; padding-bottom: clamp(40px, 5vw, 64px) !important; }
+.trust-strip { padding-top: 18px !important; padding-bottom: 18px !important; }
+.category-grid { padding-bottom: 0 !important; }
+.section-heading { margin-bottom: clamp(24px, 3vw, 40px) !important; }
+/* Stray decorative dash that drifted to the far left of every section label */
+.section-label::after { display: none !important; }

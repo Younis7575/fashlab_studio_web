@@ -100,7 +100,7 @@ $freeOver   = (float) setting('free_shipping_threshold', '8000');
 $homeCats = array_values(array_filter(categories_with_counts(), static fn(array $c): bool => (int) $c['product_count'] > 0));
 $railCats = array_values(array_filter($homeCats, static fn(array $c): bool => (int) $c['product_count'] >= 2));
 usort($railCats, static fn(array $a, array $b): int => (int) $b['id'] <=> (int) $a['id']);
-$railCats = array_slice($railCats, 0, 14);
+$railCats = array_slice($railCats, 0, 30);
 $shownIds = [];
 ?>
 

@@ -88,12 +88,14 @@
     /* --------------------------------------------------------------- shop */
     function shopState() {
         var params = new URLSearchParams();
+        /* Keep the page's own identity (category slug, department) on every reload. */
+        var current = new URLSearchParams(window.location.search);
+        ['slug', 'dept'].forEach(function (k) { if (current.get(k)) params.set(k, current.get(k)); });
         var q = qs('#shop-search');
         if (q && q.value.trim()) params.set('q', q.value.trim());
 
-        qsa('.filter-sidebar input[name="category"]:checked').forEach(function (el) {
-            params.append('category', el.value);
-        });
+        var catIds = qsa('.filter-sidebar input[name="category"]:checked').map(function (el) { return el.value; });
+        if (catIds.length) params.set('category', catIds.join(','));
         var price = qs('.filter-sidebar input[name="price"]:checked');
         if (price && price.value) params.set('price', price.value);
         qsa('.filter-sidebar input[name="fabric"]:checked').forEach(function (el) { params.set('fabric', el.value); });

@@ -17,7 +17,7 @@ $categoryId = (int) $category['id'];
    Filters (same pipeline as shop.php, with category pre-selected)
 --------------------------------------------------------------------------- */
 $q            = get_string('q', 100);
-$extraCatIds  = array_values(array_filter(array_map('intval', (array) ($_GET['category'] ?? []))));
+$extraCatIds  = array_values(array_filter(array_map('intval', explode(',', implode(',', (array) ($_GET['category'] ?? []))))));
 $price        = get_string('price', 30);
 $fabric       = get_string('fabric', 60);
 $color        = get_string('color', 60);
@@ -47,6 +47,12 @@ $filters = [
     'page'          => $page,
     'per_page'      => $perPage,
 ];
+
+/* Categories ticked in the sidebar replace this page's own category. */
+if ($extraCatIds) {
+    unset($filters['category_id']);
+    $filters['category_ids'] = $extraCatIds;
+}
 
 $result = get_products($filters);
 $facets = product_facets();

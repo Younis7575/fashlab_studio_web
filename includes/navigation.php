@@ -2,7 +2,7 @@
 /**
  * Storefront navigation (desktop mega menu + mobile drawer).
  *
- * Source of truth is still menu_items (Admin → Menu). On top of it this layer:
+ * Source of truth is still menu_items (Admin → Menu, unchanged). This layer:
  *  - hides links that would lead to an empty page (category without active
  *    products, search / filter with no results, missing category → 404);
  *  - renders the desktop mega menu and the mobile accordion drawer from the
@@ -82,9 +82,15 @@ function tc_nav_cache_clear(): void
 }
 
 /**
- * Filtered main-menu tree:
- * [ ['item' => row, 'url' => string, 'groups' => ['Heading' => [link rows]]], ... ]
- * Dropdowns that lose every link are dropped unless their own link is live.
+ * Storefront menu structure, built at render time from menu_items without
+ * writing to the database:
+ *   SHOP (Discover + Shop by Price) · CLOTHING · FABRICS · OCCASIONS · GIFTS · SALE
+ * Seeded Shop groups are split into their own menus, real clothing / gift
+ * categories are added, and top-level items that now live in the drawer or
+ * footer (Collections, New In, Best Sellers, About, Contact…) are left out.
+ * Every link is then filtered by tc_nav_link_live().
+ *
+ * Returns [ ['item' => row, 'url' => string, 'groups' => ['Heading' => [rows]]], ... ]
  */
 function tc_nav_tree(): array
 {
@@ -92,25 +98,96 @@ function tc_nav_tree(): array
     if ($tree !== null) {
         return $tree;
     }
+
+    $raw = tc_menu_tree('main');
+    $virtual = static fn(string $label, string $url, string $group = ''): array =>
+        ['id' => 0, 'label' => $label, 'url' => $url, 'group_label' => $group];
+
+    $sections = [
+        'shop'      => ['item' => $virtual('Shop', 'shop.php'), 'groups' => []],
+        'clothing'  => ['item' => $virtual('Clothing', 'shop.php'), 'groups' => []],
+        'fabrics'   => ['item' => $virtual('Fabrics', 'shop.php'), 'groups' => []],
+        'occasions' => ['item' => $virtual('Occasions', 'shop.php'), 'groups' => []],
+        'gifts'     => ['item' => $virtual('Gifts', 'collections.php'), 'groups' => []],
+    ];
+    $groupMap = [
+        'clothing' => ['clothing', 'Clothing'], 'shop by fabric' => ['fabrics', 'Fabrics'], 'fabrics' => ['fabrics', 'Fabrics'],
+        'gifts' => ['gifts', 'Gifts'], 'featured' => ['shop', 'Discover'], 'discover' => ['shop', 'Discover'],
+        'shop by price' => ['shop', 'Shop by Price'],
+    ];
+    $hiddenTop = ['collections', 'new in', 'best sellers', 'style edit', 'journal', 'about', 'contact'];
+    $extraTop = [];
+    $seen = [];
+
+    $add = static function (string $section, string $group, array $row) use (&$sections, &$seen): void {
+        $key = strtolower(trim((string) $row['url']));
+        if (isset($seen[$key])) return;
+        $seen[$key] = true;
+        $sections[$section]['groups'][$group][] = $row;
+    };
+
+    foreach ($raw as $node) {
+        $item  = $node['item'];
+        $label = strtolower(trim((string) $item['label']));
+        if ($label === 'shop') {
+            foreach ($node['children'] as $child) {
+                $g = strtolower(trim((string) ($child['item']['group_label'] ?? '')));
+                [$section, $heading] = $groupMap[$g] ?? ['shop', 'Discover'];
+                $add($section, $heading, $child['item']);
+            }
+        } elseif ($label === 'occasions') {
+            foreach ($node['children'] as $child) {
+                $add('occasions', 'Occasions', $child['item']);
+            }
+        } elseif ($label === 'sale') {
+            $extraTop['sale'] = $item;
+        } elseif (!in_array($label, $hiddenTop, true)) {
+            // Anything an admin adds later still shows up.
+            $extraTop[$label] = ['node' => $node];
+        }
+    }
+
+    // Real categories that exist in the catalogue.
+    $giftSlugs = ['luxury-gift-boxes', 'luxury-heart-gift-boxes', 'jewelry-bouquets', 'customized-caps'];
+    foreach (tc_nav_categories() as $slug => $cat) {
+        if (!empty($cat['parent_id']) && !in_array($slug, $giftSlugs, true)) continue;
+        // Merchandising categories already appear under Shop → Discover.
+        if (preg_match('/^(new[- ]?arrivals?|new[- ]?in|best[- ]?sellers?|sale|trending|featured)$/i', (string) $cat['name'])) continue;
+        $row = $virtual((string) $cat['name'], 'category.php?slug=' . $slug);
+        $add(in_array($slug, $giftSlugs, true) ? 'gifts' : 'clothing', in_array($slug, $giftSlugs, true) ? 'Gifts' : 'Clothing', $row);
+    }
+
     $tree = [];
-    foreach (tc_menu_tree('main') as $node) {
-        $item = $node['item'];
+    foreach ($sections as $sec) {
+        $groups = [];
+        foreach ($sec['groups'] as $heading => $rows) {
+            $live = array_values(array_filter($rows, static fn(array $r): bool => tc_nav_link_live((string) $r['url'])));
+            if ($live) $groups[$heading] = $live;
+        }
+        if (!$groups) continue;
+        if (isset($groups['Discover'])) {
+            $groups = ['Discover' => $groups['Discover']] + $groups;
+        }
+        // A single link group under the menu's own name needs no repeated heading.
+        $tree[] = ['item' => $sec['item'], 'url' => tc_menu_url($sec['item']), 'groups' => $groups];
+    }
+    foreach ($extraTop as $key => $entry) {
+        if ($key === 'sale') {
+            if (tc_nav_link_live((string) $entry['url'])) {
+                $tree[] = ['item' => $entry, 'url' => tc_menu_url($entry), 'groups' => []];
+            }
+            continue;
+        }
+        $node = $entry['node'];
         $groups = [];
         foreach ($node['children'] as $child) {
-            $row = $child['item'];
-            if (!tc_nav_link_live((string) $row['url'])) {
-                continue;
+            if (tc_nav_link_live((string) $child['item']['url'])) {
+                $groups[(string) ($child['item']['group_label'] ?? '')][] = $child['item'];
             }
-            $groups[(string) ($row['group_label'] ?? '')][] = $row;
         }
-        $hadChildren = (bool) $node['children'];
-        if ($hadChildren && !$groups && !tc_nav_link_live((string) $item['url'])) {
-            continue;
+        if ($groups || tc_nav_link_live((string) $node['item']['url'])) {
+            $tree[] = ['item' => $node['item'], 'url' => tc_menu_url($node['item']), 'groups' => $groups];
         }
-        if (!$hadChildren && !tc_nav_link_live((string) $item['url'])) {
-            continue;
-        }
-        $tree[] = ['item' => $item, 'url' => tc_menu_url($item), 'groups' => $groups];
     }
     return $tree;
 }
@@ -196,89 +273,4 @@ function tc_render_drawer_nav(): string
         $html .= '</div></div>';
     }
     return $html;
-}
-
-/**
- * Recommended main-menu structure, applied from Admin → Menu.
- * Re-parents seeded items by item_key and hides (never deletes) items that
- * move elsewhere. Safe to run more than once.
- */
-function tc_apply_recommended_menu(PDO $db): int
-{
-    $changes = 0;
-    $id = static function (string $key) use ($db): ?int {
-        $st = $db->prepare('SELECT id FROM menu_items WHERE item_key = ? LIMIT 1');
-        $st->execute([$key]);
-        $v = $st->fetchColumn();
-        return $v === false ? null : (int) $v;
-    };
-    $ensureTop = static function (string $key, string $label, string $url, int $sort) use ($db, $id, &$changes): int {
-        $existing = $id($key);
-        if ($existing) {
-            $db->prepare('UPDATE menu_items SET parent_id = NULL, label = ?, url = ?, sort_order = ?, status = 1, location = ? WHERE id = ?')
-               ->execute([$label, $url, $sort, 'main', $existing]);
-            $changes++;
-            return $existing;
-        }
-        $db->prepare('INSERT INTO menu_items (item_key, parent_id, label, url, group_label, location, sort_order, status, desktop_visible, mobile_visible)
-                      VALUES (?, NULL, ?, ?, NULL, ?, ?, 1, 1, 1)')
-           ->execute([$key, $label, $url, 'main', $sort]);
-        $changes++;
-        return (int) $db->lastInsertId();
-    };
-
-    $shop      = $ensureTop('main-shop', 'Shop', 'shop.php', 1);
-    $clothing  = $ensureTop('main-clothing', 'Clothing', 'shop.php', 2);
-    $fabrics   = $ensureTop('main-fabrics', 'Fabrics', 'shop.php', 3);
-    $occasions = $ensureTop('main-occasions', 'Occasions', 'shop.php', 4);
-    $gifts     = $ensureTop('main-gifts', 'Gifts', 'collections.php', 5);
-    $ensureTop('main-sale', 'Sale', 'shop.php?sale=1', 6);
-
-    // Seeded Shop children: clothing / fabric groups move to their own menus.
-    $move = static function (int $parent, string $where, array $params, ?string $group) use ($db, &$changes): void {
-        $st = $db->prepare('UPDATE menu_items SET parent_id = ?, group_label = ? WHERE location = ? AND ' . $where);
-        $st->execute(array_merge([$parent, $group, 'main'], $params));
-        $changes += $st->rowCount();
-    };
-    $move($clothing, "group_label = 'Clothing' AND parent_id = ?", [$shop], 'Clothing');
-    $move($fabrics, "group_label = 'Shop By Fabric' AND parent_id = ?", [$shop], 'Fabrics');
-    $move($gifts, "group_label = 'Gifts' AND parent_id = ?", [$shop], 'Gifts');
-    $move($shop, "group_label = 'Featured' AND parent_id = ?", [$shop], 'Discover');
-    $move($shop, "group_label = 'Shop By Price' AND parent_id = ?", [$shop], 'Shop by Price');
-    $move($occasions, 'parent_id = ?', [$occasions], 'Occasions');
-
-    // Gifts: make sure every live gift category is linked.
-    foreach (['luxury-gift-boxes' => 'Luxury Gift Boxes', 'luxury-heart-gift-boxes' => 'Heart Gift Boxes', 'jewelry-bouquets' => 'Jewellery Bouquets', 'customized-caps' => 'Customized Caps'] as $slug => $label) {
-        $url = 'category.php?slug=' . $slug;
-        $st = $db->prepare('SELECT id FROM menu_items WHERE location = ? AND url = ? LIMIT 1');
-        $st->execute(['main', $url]);
-        $existing = $st->fetchColumn();
-        if ($existing) {
-            $db->prepare('UPDATE menu_items SET parent_id = ?, group_label = ? WHERE id = ?')->execute([$gifts, 'Gifts', (int) $existing]);
-        } else {
-            $db->prepare('INSERT INTO menu_items (parent_id, label, url, group_label, location, sort_order, status) VALUES (?, ?, ?, ?, ?, 9, 1)')
-               ->execute([$gifts, $label, $url, 'Gifts', 'main']);
-        }
-        $changes++;
-    }
-
-    // Real clothing categories (only shown while they have products).
-    foreach (['unstitched-3-piece' => 'Unstitched 3 Piece', 'unstitched-2-piece' => 'Unstitched 2 Piece', 'one-piece-unstitched' => 'One Piece Unstitched', 'ready-to-wear' => 'Ready to Wear'] as $slug => $label) {
-        $url = 'category.php?slug=' . $slug;
-        $st = $db->prepare('SELECT id FROM menu_items WHERE location = ? AND url = ? LIMIT 1');
-        $st->execute(['main', $url]);
-        if (!$st->fetchColumn()) {
-            $db->prepare('INSERT INTO menu_items (parent_id, label, url, group_label, location, sort_order, status) VALUES (?, ?, ?, ?, ?, 0, 1)')
-               ->execute([$clothing, $label, $url, 'Clothing', 'main']);
-            $changes++;
-        }
-    }
-
-    // Top-level items that now live inside Shop, the drawer or the footer: hide, don't delete.
-    $hide = $db->prepare("UPDATE menu_items SET status = 0 WHERE location = 'main' AND parent_id IS NULL AND item_key IN ('main-collections','main-new-in','main-best-sellers','main-style-edit','main-journal','main-about','main-contact')");
-    $hide->execute();
-    $changes += $hide->rowCount();
-
-    tc_nav_cache_clear();
-    return $changes;
 }

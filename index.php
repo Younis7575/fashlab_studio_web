@@ -72,6 +72,7 @@ $freeOver   = (float) setting('free_shipping_threshold', '8000');
 
 <!-- HERO — compact banner, products start right below -->
 <section class="fx-hero" aria-label="Featured collection">
+    <canvas class="fx-hero-3d" data-fx-hero3d aria-hidden="true"></canvas>
     <div class="container fx-hero-inner">
         <div class="fx-hero-copy">
             <p class="fx-hero-eyebrow"><?= e($heroEyebrow) ?></p>
@@ -87,7 +88,32 @@ $freeOver   = (float) setting('free_shipping_threshold', '8000');
                 <li><i class="fa-solid fa-rotate-left"></i> <?= (int) setting('exchange_policy_days', '7') ?>-day exchange</li>
             </ul>
         </div>
-        <?php if ($heroImage !== ''): ?>
+        <?php
+        /* Newest gift products (real data) for the hero carousel. */
+        $giftCatIds = [];
+        foreach (categories_with_counts() as $gc) {
+            if ((int) $gc['product_count'] > 0 && preg_match('/nikkah|\bpens?\b|frames?\b|birthday|bouquet|gift|basket|hamper|surprise|\bbox|chocolate|snack|flower|gajr|couple/i', $gc['name'] . ' ' . $gc['slug'])) {
+                $giftCatIds[] = (int) $gc['id'];
+            }
+        }
+        $heroGifts = $giftCatIds ? (get_products(['category_ids' => $giftCatIds, 'sort' => 'newest', 'per_page' => 12])['items'] ?? []) : [];
+        $heroGifts = array_values(array_filter($heroGifts, static fn(array $p): bool => !empty($p['primary_image'])));
+        ?>
+        <?php if ($heroGifts): ?>
+        <div class="fx-hero-carousel" data-fx-carousel aria-roledescription="carousel" aria-label="New gifts">
+            <div class="fx-hc-track">
+                <?php foreach ($heroGifts as $i => $g): ?>
+                <a class="fx-hc-slide<?= $i === 0 ? ' is-active' : '' ?>" href="<?= e(product_url($g['slug'])) ?>" aria-hidden="<?= $i === 0 ? 'false' : 'true' ?>"<?= $i === 0 ? '' : ' tabindex="-1"' ?>>
+                    <img src="<?= e(image_url($g['primary_image'])) ?>" alt="<?= e($g['name']) ?>" width="600" height="750" <?= $i === 0 ? 'fetchpriority="high"' : 'loading="lazy"' ?>>
+                    <span class="fx-hc-cap"><span class="fx-hc-tag">New Gift</span><strong><?= e($g['name']) ?></strong><em><?= e(money((float) (($g['sale_price'] ?? 0) > 0 ? $g['sale_price'] : $g['price']))) ?></em></span>
+                </a>
+                <?php endforeach; ?>
+            </div>
+            <button type="button" class="fx-hc-nav fx-hc-prev" aria-label="Previous gift"><i class="fa-solid fa-chevron-left"></i></button>
+            <button type="button" class="fx-hc-nav fx-hc-next" aria-label="Next gift"><i class="fa-solid fa-chevron-right"></i></button>
+            <div class="fx-hc-dots"><?php foreach ($heroGifts as $i => $g): ?><button type="button" aria-label="Gift <?= $i + 1 ?>"<?= $i === 0 ? ' class="is-active"' : '' ?>></button><?php endforeach; ?></div>
+        </div>
+        <?php elseif ($heroImage !== ''): ?>
         <a class="fx-hero-media" href="<?= e($heroCta1Link) ?>">
             <img src="<?= e($heroImage) ?>" alt="<?= e($heroTitle) ?> — <?= e(setting('store_name')) ?>" fetchpriority="high" width="900" height="600">
         </a>
@@ -163,4 +189,6 @@ $shownIds = [];
 </section>
 <?php endif; ?>
 
+<script src="<?= e(asset_url('assets/js/vendor/three.min.js')) ?>" defer></script>
+<script src="<?= e(asset_url('assets/js/hero3d.js')) ?>" defer></script>
 <?php require __DIR__ . '/includes/storefront-footer.php'; ?>

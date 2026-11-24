@@ -154,6 +154,10 @@ function tc_nav_tree(): array
         if (!in_array($label, ['shop', 'occasions'], true)) { $extra[] = $node; continue; }
         foreach ($node['children'] as $child) {
             $row = $child['item'];
+            // Fabric / occasion / price links search only within Women's fashion.
+            if (str_starts_with((string) $row['url'], 'shop.php') && !str_contains((string) $row['url'], 'dept=')) {
+                $row['url'] .= (str_contains((string) $row['url'], '?') ? '&' : '?') . 'dept=women';
+            }
             $g = strtolower(trim((string) ($row['group_label'] ?? '')));
             if ($label === 'occasions')                 $add('women', 'Occasions', $row);
             elseif (str_contains($g, 'fabric'))         $add('women', 'Fabrics', $row);

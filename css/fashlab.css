@@ -350,3 +350,19 @@ body.fx-lock { overflow: hidden; }
 .shop-hero .section-label, .shop-hero .eyebrow, .categories-hero .section-label, .collection-hero .eyebrow { margin-bottom: 4px !important; font-size: 10.5px !important; }
 .shop-hero .btn, .shop-hero .btn-outline { display: none !important; }
 @media (min-width: 1200px) { .shop-layout .product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; } }
+
+/* Listing pages: the filter sidebar scrolls on its own, so a long filter list
+   no longer stretches the page below the products. Cards show immediately. */
+@media (min-width: 992px) {
+    .shop-layout { align-items: start; }
+    .filter-sidebar {
+        position: sticky !important;
+        top: 90px !important;
+        max-height: calc(100vh - 110px) !important;
+        overflow-y: auto !important;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        padding: 16px !important;
+    }
+}
+.product-card.tc-reveal, .product-grid .tc-reveal { opacity: 1 !important; transform: none !important; transition-delay: 0s !important; }

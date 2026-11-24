@@ -270,3 +270,83 @@ body.fx-lock { overflow: hidden; }
 .section-heading { margin-bottom: clamp(24px, 3vw, 40px) !important; }
 /* Stray decorative dash that drifted to the far left of every section label */
 .section-label::after { display: none !important; }
+
+/* ==========================================================================
+   Product-first layout (v3): compact hero, category circles, dense product
+   rows, tighter spacing on every page. Loaded last, so it wins.
+   ========================================================================== */
+.lx-cursor, .lx-hero-cue { display: none !important; }
+
+/* Compact homepage hero */
+.fx-hero { background: var(--fx-bg-warm, #f8f5f1); border-bottom: 1px solid rgba(28,26,25,.06); }
+.fx-hero-inner { display: grid; grid-template-columns: 1.1fr 1fr; gap: 28px; align-items: center; padding-top: 22px; padding-bottom: 22px; }
+.fx-hero-eyebrow { font-size: 11px; letter-spacing: .22em; color: var(--fx-accent, #6e1430); margin: 0 0 6px; font-weight: 600; }
+.fx-hero-title { font-family: 'Playfair Display', serif; font-size: clamp(24px, 3vw, 38px); line-height: 1.15; margin: 0 0 8px; color: var(--fx-ink, #1c1a19); }
+.fx-hero-title span { display: block; font-style: italic; color: var(--fx-accent, #6e1430); }
+.fx-hero-sub { font-size: 14px; color: #6b625c; margin: 0 0 14px; max-width: 520px; }
+.fx-hero-cta { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.fx-hero-cta .fx-btn { padding: 11px 20px; font-size: 12px; }
+.fx-hero-trust { display: flex; flex-wrap: wrap; gap: 6px 18px; list-style: none; margin: 0; padding: 0; font-size: 12.5px; color: #5c534d; }
+.fx-hero-trust i { color: var(--fx-accent, #6e1430); margin-right: 4px; }
+.fx-hero-media { display: block; border-radius: 14px; overflow: hidden; aspect-ratio: 16 / 9; max-height: 300px; }
+.fx-hero-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Category circles */
+.fx-cats { padding: 18px 0 6px; }
+.fx-cats-row { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 8px; scrollbar-width: thin; }
+.fx-cat { flex: 0 0 auto; width: 96px; text-align: center; text-decoration: none; color: var(--fx-ink, #1c1a19); scroll-snap-align: start; }
+.fx-cat-img { display: block; width: 84px; height: 84px; margin: 0 auto 6px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(110,20,48,.14); background: #f3ede7; transition: border-color .2s; }
+.fx-cat:hover .fx-cat-img { border-color: var(--fx-accent, #6e1430); }
+.fx-cat-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fx-cat-name { display: block; font-size: 12px; line-height: 1.3; font-weight: 500; }
+
+/* Product rows */
+.fx-rail { padding: 18px 0 8px; }
+.fx-rail-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.fx-rail-head h2 { font-family: 'Playfair Display', serif; font-size: clamp(20px, 2.2vw, 26px); margin: 0; color: var(--fx-ink, #1c1a19); }
+.fx-rail-all { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; color: var(--fx-accent, #6e1430); text-decoration: none; white-space: nowrap; }
+.product-grid.fx-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+
+/* Tighter spacing everywhere */
+.section-padding { padding-top: clamp(20px, 3vw, 36px) !important; padding-bottom: clamp(20px, 3vw, 36px) !important; }
+.section-heading { margin-bottom: 16px !important; }
+.section-heading h2 { font-size: clamp(22px, 2.4vw, 30px) !important; }
+.section-heading h2::after, .section-heading::after { display: none !important; }
+.product-grid { gap: 14px !important; }
+.product-info { padding: 10px 10px 12px !important; }
+.shop-hero, .categories-hero, .collection-hero, .collection-hero.has-image { padding: 22px 0 !important; min-height: 0 !important; }
+.shop-hero h1, .categories-hero-content h1, .collection-hero-content h1 { font-size: clamp(22px, 2.6vw, 32px) !important; margin-bottom: 4px !important; }
+.shop-hero p, .categories-hero-content p, .collection-hero-content p { font-size: 13.5px !important; margin-bottom: 0 !important; }
+.shop-section { padding-top: 16px !important; }
+.newsletter-section { padding: 28px 0 !important; }
+
+@media (max-width: 1199px) { .product-grid.fx-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 900px) {
+    .fx-hero-inner { grid-template-columns: 1fr; gap: 14px; padding-top: 14px; padding-bottom: 14px; }
+    .fx-hero-media { max-height: 190px; order: -1; }
+    .fx-hero-sub { display: none; }
+    .product-grid.fx-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+    .product-grid.fx-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .fx-cat { width: 76px; } .fx-cat-img { width: 66px; height: 66px; }
+    .fx-rail { padding: 14px 0 4px; }
+    .fx-hero-title { font-size: 22px; }
+}
+
+/* Compact product cards */
+.product-card .p-rating.is-empty { display: none !important; }
+.product-card .p-cat { font-size: 10px !important; margin-bottom: 2px !important; letter-spacing: .08em; }
+.product-card .p-name { font-size: 14px !important; line-height: 1.3 !important; margin-bottom: 4px !important; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.product-card .p-price { font-size: 14px !important; margin: 0 0 8px !important; }
+.product-card .mini-cart-btn { padding: 8px 10px !important; font-size: 11px !important; min-height: 0 !important; border-radius: 999px; }
+.product-card .product-badge { font-size: 9.5px !important; padding: 3px 8px !important; }
+.product-card .product-tag.out-of-stock { font-size: 10px !important; padding: 4px 10px !important; }
+@media (max-width: 640px) {
+    .product-card .p-name { font-size: 13px !important; }
+    .product-card .product-actions button { width: 30px !important; height: 30px !important; }
+}
+.shop-hero-content, .categories-hero-content, .collection-hero-content { padding-top: 0 !important; padding-bottom: 0 !important; }
+.shop-hero .section-label, .shop-hero .eyebrow, .categories-hero .section-label, .collection-hero .eyebrow { margin-bottom: 4px !important; font-size: 10.5px !important; }
+.shop-hero .btn, .shop-hero .btn-outline { display: none !important; }
+@media (min-width: 1200px) { .shop-layout .product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; } }

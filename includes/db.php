@@ -25,6 +25,12 @@ function db(): PDO
 
     try {
         $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+        // Optional, environment-only: lets a strict local MySQL behave like the
+        // production MariaDB (e.g. TC_DB_SQL_MODE=NO_ENGINE_SUBSTITUTION). Unset on live.
+        $sqlMode = getenv('TC_DB_SQL_MODE');
+        if (is_string($sqlMode) && $sqlMode !== '') {
+            $pdo->prepare('SET SESSION sql_mode = ?')->execute([$sqlMode]);
+        }
     } catch (PDOException $e) {
         error_log('[tayyaba] DB connection failed: ' . $e->getMessage());
         http_response_code(500);

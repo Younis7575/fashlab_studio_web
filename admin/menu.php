@@ -86,6 +86,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $tableReady) {
         redirect($backUrl);
     }
 
+    if ($action === 'apply_recommended' && $location === 'main') {
+        $n = tc_apply_recommended_menu($db);
+        record_activity('menu_restructure', null, null, 'Applied recommended main menu structure');
+        flash_set('success', 'Recommended menu structure applied (' . $n . ' changes). Nothing was deleted; moved-out items are hidden.');
+        redirect($backUrl);
+    }
+
     if ($action === 'delete' && $id > 0) {
         $db->prepare('DELETE FROM menu_items WHERE id = ?')->execute([$id]);
         record_activity('menu_delete', 'menu_item', $id, 'Deleted menu link');
@@ -171,6 +178,15 @@ ob_start();
     <div class="card"><p>The menu table has not been created on this database yet, so the storefront uses its built-in navigation.</p></div>
 <?php else: ?>
 
+<?php if ($location === 'main'): ?>
+<form method="post" style="margin-bottom:14px" onsubmit="return confirm('Re-organise the main menu into Shop / Clothing / Fabrics / Occasions / Gifts / Sale? Nothing is deleted.')">
+    <?= csrf_field() ?>
+    <input type="hidden" name="location" value="main">
+    <input type="hidden" name="action" value="apply_recommended">
+    <button class="btn btn-outline btn-sm"><i class="fa-solid fa-sitemap"></i> Apply recommended structure</button>
+    <span class="help" style="margin-left:8px">Links to categories or searches with no products are hidden on the storefront automatically.</span>
+</form>
+<?php endif; ?>
 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
     <?php foreach (TC_MENU_LOCATIONS as $key => $name): ?>
         <a class="btn btn-sm <?= $key === $location ? 'btn-primary' : 'btn-outline' ?>" href="?location=<?= e($key) ?>"><?= e($name) ?></a>

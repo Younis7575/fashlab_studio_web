@@ -130,5 +130,6 @@ $freeOver   = (float) setting('free_shipping_threshold', '8000');
 <script src="<?= e(asset_url('assets/js/site.js')) ?>"></script>
 <script src="<?= e(asset_url('assets/js/premium.js')) ?>"></script>
 <script src="<?= e(asset_url('assets/js/luxury.js')) ?>" defer></script>
+<script src="<?= e(asset_url('assets/js/fashlab.js')) ?>" defer></script>
 </body>
 </html>

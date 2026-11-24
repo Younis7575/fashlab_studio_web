@@ -121,6 +121,7 @@ if ($mainNav === '') {
     <link rel="stylesheet" href="<?= e(asset_url('css/premium.css')) ?>">
     <link rel="stylesheet" href="<?= e(asset_url('css/dynamic.css')) ?>">
     <link rel="stylesheet" href="<?= e(asset_url('css/luxury.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset_url('css/fashlab.css')) ?>">
 
     <script>
         window.TC_SETTINGS = {
@@ -183,43 +184,90 @@ if ($mainNav === '') {
 </div>
 <?php endif; ?>
 
-<!-- Navbar -->
-<header class="site-header">
-    <div class="container nav-container">
-
-        <a href="<?= url('/index.php') ?>" class="brand-logo">
-            <img src="<?= e(asset_url('images/brand/logo-wordmark.png')) ?>"
-                 alt="<?= e($storeName) ?>" width="790" height="192">
-            <span class="sr-only"><?= e($storeName) ?></span>
-        </a>
-
-        <button class="nav-toggle" aria-label="Open navigation menu" type="button">
-            <i class="fa-solid fa-bars"></i>
+<?php
+$desktopNav = tc_render_desktop_nav($active_nav) ?: $mainNav;
+$drawerNav  = tc_render_drawer_nav();
+$drawerInfo = [];
+foreach ([
+    'about.php' => 'About Us', 'contact.php' => 'Contact Us', 'track-order.php' => 'Track My Order',
+    'shipping.php' => 'Shipping Information', 'returns.php' => 'Return & Exchange Policy',
+    'privacy-policy.php' => 'Privacy Policy', 'terms.php' => 'Terms & Conditions',
+] as $file => $label) {
+    if (is_file(__DIR__ . '/../' . $file)) $drawerInfo[url('/' . $file)] = $label;
+}
+$drawerWa = whatsapp_url('Hello! I would like to know more about your collection.');
+$drawerSocials = [];
+foreach (['instagram_url' => 'fa-instagram', 'facebook_url' => 'fa-facebook-f', 'tiktok_url' => 'fa-tiktok'] as $key => $icon) {
+    $u = trim((string) setting($key, ''));
+    if ($u !== '' && preg_match('#^https?://#i', $u)) $drawerSocials[$u] = $icon;
+}
+?>
+<!-- Header -->
+<header class="fx-header" data-fx-header>
+    <div class="fx-header-bar">
+        <button type="button" class="fx-icon-btn fx-burger" data-fx-drawer-open aria-label="Open menu" aria-expanded="false" aria-controls="fx-drawer">
+            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18M3 12h18M3 17h12" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
         </button>
-
-        <nav class="site-nav" aria-label="Main navigation">
-            <?= $mainNav ?>
-        </nav>
-
-        <div class="nav-actions">
-            <button type="button" class="search-trigger" aria-label="Search" data-search-open>
-                <i class="fa-solid fa-magnifying-glass"></i>
+        <a href="<?= url('/index.php') ?>" class="fx-logo">
+            <img src="<?= e(asset_url('images/brand/logo-wordmark.png')) ?>" alt="<?= e($storeName) ?>" width="790" height="192">
+        </a>
+        <nav class="fx-nav" aria-label="Main navigation"><?= $desktopNav ?></nav>
+        <div class="fx-actions">
+            <button type="button" class="fx-icon-btn" aria-label="Search" data-search-open>
+                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
             </button>
-            <a href="<?= url('/my-orders.php') ?>" aria-label="My Orders (saved on this device)" class="orders-link">
-                <i class="fa-solid fa-receipt"></i>
+            <a href="<?= url('/my-orders.php') ?>" class="fx-icon-btn fx-hide-sm" aria-label="My orders">
+                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
             </a>
-            <a href="<?= url('/wishlist.php') ?>" class="wishlist-link" aria-label="Wishlist">
-                <i class="fa-regular fa-heart"></i>
-                <span class="wishlist-count"><?= (int) $wishCount ?></span>
+            <a href="<?= url('/wishlist.php') ?>" class="fx-icon-btn fx-hide-sm" aria-label="Wishlist">
+                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>
+                <span class="fx-badge wishlist-count"><?= (int) $wishCount ?></span>
             </a>
-            <a href="<?= url('/cart.php') ?>" class="cart-link" aria-label="Shopping cart" data-cart-drawer-open>
-                <i class="fa-solid fa-bag-shopping"></i>
-                <span class="cart-count"><?= (int) $cartCount ?></span>
+            <a href="<?= url('/cart.php') ?>" class="fx-icon-btn" aria-label="Shopping bag" data-cart-drawer-open>
+                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/><path d="M9 8V6a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+                <span class="fx-badge cart-count"><?= (int) $cartCount ?></span>
             </a>
         </div>
-
     </div>
 </header>
+
+<!-- Mobile drawer -->
+<div class="fx-drawer-overlay" data-fx-drawer-overlay hidden></div>
+<aside class="fx-drawer" id="fx-drawer" data-fx-drawer aria-hidden="true" aria-label="Menu" tabindex="-1">
+    <div class="fx-drawer-head">
+        <img src="<?= e(asset_url('images/brand/logo-wordmark.png')) ?>" alt="<?= e($storeName) ?>" width="790" height="192">
+        <button type="button" class="fx-icon-btn" data-fx-drawer-close aria-label="Close menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+    </div>
+    <div class="fx-drawer-scroll">
+        <div class="fx-quick">
+            <button type="button" data-search-open data-fx-drawer-close><span class="fx-quick-ico"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>Search</button>
+            <a href="<?= url('/my-orders.php') ?>"><span class="fx-quick-ico"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span>My Orders</a>
+            <a href="<?= url('/wishlist.php') ?>"><span class="fx-quick-ico"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg></span>Wishlist <em class="wishlist-count"><?= (int) $wishCount ?></em></a>
+            <a href="<?= url('/cart.php') ?>" data-cart-drawer-open data-fx-drawer-close><span class="fx-quick-ico"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/><path d="M9 8V6a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="1.6" fill="none"/></svg></span>Bag <em class="cart-count"><?= (int) $cartCount ?></em></a>
+        </div>
+        <nav class="fx-drawer-nav" aria-label="Shop categories"><?= $drawerNav ?: $mainNav ?></nav>
+        <?php if ($drawerInfo): ?>
+        <nav class="fx-drawer-info" aria-label="Customer information">
+            <?php foreach ($drawerInfo as $href => $label): ?>
+                <a href="<?= e($href) ?>"><?= e($label) ?></a>
+            <?php endforeach; ?>
+        </nav>
+        <?php endif; ?>
+    </div>
+    <div class="fx-drawer-foot">
+        <?php if ($drawerWa !== ''): ?>
+            <a class="fx-btn fx-btn-dark fx-btn-block" href="<?= e($drawerWa) ?>" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> WhatsApp Support</a>
+        <?php endif; ?>
+        <div class="fx-drawer-social">
+            <?php foreach ($drawerSocials as $u => $icon): ?>
+                <a href="<?= e($u) ?>" target="_blank" rel="noopener noreferrer" aria-label="<?= e(ucfirst(str_replace('fa-', '', explode('-', $icon)[1] ?? $icon))) ?>"><i class="fa-brands <?= e($icon) ?>" aria-hidden="true"></i></a>
+            <?php endforeach; ?>
+        </div>
+        <p class="fx-drawer-note">Cash on delivery · 7-day easy exchange</p>
+    </div>
+</aside>
 
 <!-- Premium search overlay -->
 <div class="search-overlay" data-search-overlay hidden>

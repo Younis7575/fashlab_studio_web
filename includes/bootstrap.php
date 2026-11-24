@@ -83,6 +83,7 @@ require_once __DIR__ . '/cart.php';
 require_once __DIR__ . '/product-functions.php';
 require_once __DIR__ . '/enterprise.php';
 require_once __DIR__ . '/personalisation.php';
+require_once __DIR__ . '/navigation.php';
 require_once __DIR__ . '/order-service.php';
 require_once __DIR__ . '/auth.php';
 

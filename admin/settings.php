@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'min_order_amount', 'low_stock_threshold', 'announcement_bar',
         'instagram_url', 'facebook_url', 'linkedin_url', 'tiktok_url', 'whatsapp_number',
         'store_status', 'meta_description', 'footer_credit',
+        'jazzcash_account_title', 'jazzcash_account_number',
     ];
 
     foreach ($fields as $key) {
@@ -127,6 +128,21 @@ ob_start();
                         <label for="whatsapp_number">WhatsApp Number</label>
                         <input type="text" id="whatsapp_number" name="whatsapp_number" value="<?= e($settings['whatsapp_number'] ?? '') ?>" placeholder="+92 334 232 2324">
                         <p class="help">Drives the floating chat button and the WhatsApp links. Any format works &mdash; a leading 0 is treated as a Pakistani number.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-mobile-screen-button" style="color:#a3122e"></i> JazzCash Manual Payment</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="jazzcash_account_title">Account Title</label>
+                        <input type="text" id="jazzcash_account_title" name="jazzcash_account_title" maxlength="100" value="<?= e($settings['jazzcash_account_title'] ?? 'Muhammad Younis') ?>">
+                    </div>
+                    <div class="form-group">
+                        <label for="jazzcash_account_number">Account Number</label>
+                        <input type="text" id="jazzcash_account_number" name="jazzcash_account_number" maxlength="30" value="<?= e($settings['jazzcash_account_number'] ?? '03342322324') ?>" placeholder="03XXXXXXXXX">
+                        <p class="help">Shown to customers on website and app checkout when they choose JazzCash.</p>
                     </div>
                 </div>
             </div>

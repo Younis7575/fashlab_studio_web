@@ -16,8 +16,8 @@ function manual_payment_account(): array
     return [
         'method'         => 'jazzcash',
         'name'           => 'JazzCash',
-        'account_title'  => setting('jazzcash_account_title', 'Muhammad Younis'),
-        'account_number' => setting('jazzcash_account_number', '03342322324'),
+        'account_title'  => setting('jazzcash_account_title') ?: 'Muhammad Younis',
+        'account_number' => setting('jazzcash_account_number') ?: '03342322324',
     ];
 }
 

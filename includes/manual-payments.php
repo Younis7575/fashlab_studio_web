@@ -23,7 +23,19 @@ function manual_payment_account(): array
 
 function manual_payments_ready(): bool
 {
-    return tc_table_exists('manual_payments');
+    static $ready = null;
+    if ($ready !== null) return $ready;
+    if (tc_table_exists('manual_payments')) return $ready = true;
+    /* First use on a new server: create the (additive) table automatically. */
+    try {
+        foreach (tc_schema_updates() as $u) {
+            if ($u['table'] === 'manual_payments') db()->exec($u['ddl']);
+        }
+        return $ready = true;
+    } catch (Throwable $e) {
+        error_log('[manual-payments] ' . $e->getMessage());
+        return $ready = false;
+    }
 }
 
 /**

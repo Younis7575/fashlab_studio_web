@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'delivery'  => post('delivery', 20),
         'payment'   => post('payment', 30),
         'notes'     => post_text('notes', 1000),
-        'country'   => post('country', 'Pakistan'),
+        'country'   => post('country', 60) ?: 'Pakistan',
         'is_gift'   => !empty($_POST['is_gift']) ? 1 : 0,
         'gift_message' => post_text('gift_message', 2000),
     ];
@@ -57,9 +57,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($old['city'] === '')                           $errors['city'] = 'Please enter your city.';
     if ($old['address'] === '')                        $errors['address'] = 'Please enter your complete address.';
     if (!in_array($old['delivery'], ['standard', 'express'], true)) $old['delivery'] = 'standard';
-    // Card is not wired to a gateway yet, so accepting it would create an
-    // order that can never be settled. COD is forced until one exists.
-    $old['payment'] = 'cod';
+    // COD or JazzCash (manual transfer, verified by the admin).
+    if ($old['payment'] !== 'jazzcash' || !manual_payments_ready()) $old['payment'] = 'cod';
+    $old['sender_title']   = post('sender_title', 150);
+    $old['transaction_id'] = post('transaction_id', 80);
+    if ($old['payment'] === 'jazzcash') {
+        if ($old['sender_title'] === '')   $errors['sender_title']   = 'Please enter the account title you sent the JazzCash payment from.';
+        if ($old['transaction_id'] === '') $errors['transaction_id'] = 'Please enter the JazzCash transaction ID (TID).';
+        if (($_FILES['payment_screenshot']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            $errors['payment_screenshot'] = 'Please attach a screenshot of your JazzCash payment.';
+        }
+    }
 
     // Taxable value (goods + shipping). Pakistan's IR node currently model
     // writes '0.00' for tax, so tax must be computed and written explicitly.
@@ -106,6 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'country'     => $old['country'],
         'is_gift'     => (int) ($old['is_gift'] ?? 0) === 1,
         'gift_message' => $old['gift_message'],
+        'payment'      => $old['payment'],
     ]);
 
     if (!$result['ok']) {
@@ -125,11 +134,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             't' => time(),
         ]), ['expires' => time() + 60 * 60 * 24 * 60, 'path' => '/', 'samesite' => 'Lax']);
 
+        $paymentNote = null;
+        if ($old['payment'] === 'jazzcash') {
+            $oid = (int) (order_by_number((string) $result['order_number'])['id'] ?? 0);
+            $pay = manual_payment_submit($oid, $old['sender_title'], $old['transaction_id'], $_FILES['payment_screenshot'] ?? []);
+            $paymentNote = $pay['ok'] ? 'review' : 'missing';
+        }
+
         $_SESSION['last_order'] = [
+            'payment_note'   => $paymentNote,
             'order_number'   => $result['order_number'],
             'customer_name'  => $old['fullName'],
             'phone'          => $old['phone'],
-            'payment_method' => 'Cash on Delivery',
+            'payment_method' => $old['payment'] === 'jazzcash' ? 'JazzCash (manual transfer)' : 'Cash on Delivery',
             'total'          => $result['total'],
             'items'          => array_map(static fn ($it) => [
                 'name' => $it['name'], 'qty' => $it['qty'], 'price' => $it['unit_price'],
@@ -176,7 +193,7 @@ require __DIR__ . '/includes/storefront-header.php';
         <div class="checkout-grid">
 
             <div class="checkout-form">
-                <form id="checkoutForm" method="post" action="<?= e(url('/checkout.php')) ?>" novalidate>
+                <form id="checkoutForm" method="post" action="<?= e(url('/checkout.php')) ?>" enctype="multipart/form-data" novalidate>
                     <?= csrf_field() ?>
 
                     <!-- CONTACT INFORMATION -->
@@ -293,22 +310,63 @@ require __DIR__ . '/includes/storefront-header.php';
                                     <span class="pay-flag">Recommended</span>
                                 </label>
                             </div>
-                            <div class="payment-option is-disabled">
-                                <input type="radio" id="card" name="payment" value="card" disabled>
-                                <label for="card" class="payment-label">
-                                    <div class="payment-icon"><i class="fa-solid fa-credit-card"></i></div>
+                            <?php if (manual_payments_ready()): $jc = manual_payment_account(); $isJc = ($old['payment'] ?? '') === 'jazzcash'; ?>
+                            <div class="payment-option">
+                                <input type="radio" id="jazzcash" name="payment" value="jazzcash" <?= $isJc ? 'checked' : '' ?>>
+                                <label for="jazzcash" class="payment-label">
+                                    <div class="payment-icon jc-icon"><i class="fa-solid fa-mobile-screen-button"></i></div>
                                     <div>
-                                        <strong>Card / Online Payment</strong>
-                                        <span>Coming soon</span>
+                                        <strong>JazzCash (Manual Payment)</strong>
+                                        <span>Send the amount to our JazzCash account and upload the proof</span>
                                     </div>
                                 </label>
                             </div>
                         </div>
-                        <div class="card-note">
-                            <i class="fa-solid fa-circle-info"></i>
-                            <span>Online card payment is not live yet, so every order is placed as
-                            <strong>Cash on Delivery</strong> &mdash; you pay the courier at your door.</span>
+
+                        <div class="jc-panel" data-jc-panel <?= $isJc ? '' : 'hidden' ?>>
+                            <div class="jc-account">
+                                <p class="jc-step"><span>1</span> Send your order total (see Order Summary) to this JazzCash account</p>
+                                <div class="jc-row"><span>Account Title</span><strong><?= e($jc['account_title']) ?></strong></div>
+                                <div class="jc-row"><span>Account Number</span><strong class="jc-num"><?= e($jc['account_number']) ?></strong>
+                                    <button type="button" class="jc-copy" data-copy="<?= e($jc['account_number']) ?>"><i class="fa-regular fa-copy"></i> Copy</button></div>
+                            </div>
+                            <p class="jc-step"><span>2</span> After sending, fill in your payment details</p>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="sender_title">Your Account Title <span class="required">*</span></label>
+                                    <input type="text" id="sender_title" name="sender_title" placeholder="Name on the account you paid from" value="<?= e($old['sender_title'] ?? '') ?>">
+                                    <?php if (isset($errors['sender_title'])): ?><p class="field-error"><?= e($errors['sender_title']) ?></p><?php endif; ?>
+                                </div>
+                                <div class="form-group">
+                                    <label for="transaction_id">Transaction ID (TID) <span class="required">*</span></label>
+                                    <input type="text" id="transaction_id" name="transaction_id" placeholder="e.g. 012345678901" value="<?= e($old['transaction_id'] ?? '') ?>">
+                                    <?php if (isset($errors['transaction_id'])): ?><p class="field-error"><?= e($errors['transaction_id']) ?></p><?php endif; ?>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="payment_screenshot">Payment Screenshot <span class="required">*</span></label>
+                                <input type="file" id="payment_screenshot" name="payment_screenshot" accept="image/*">
+                                <?php if (isset($errors['payment_screenshot'])): ?><p class="field-error"><?= e($errors['payment_screenshot']) ?></p><?php endif; ?>
+                            </div>
+                            <p class="jc-hint"><i class="fa-solid fa-shield-halved"></i> Your order is confirmed once we verify the payment (usually within a few hours).</p>
                         </div>
+                        <?php else: ?>
+                        </div>
+                        <?php endif; ?>
+                        <script>
+                        (function () {
+                            var panel = document.querySelector('[data-jc-panel]');
+                            if (!panel) return;
+                            document.querySelectorAll('input[name="payment"]').forEach(function (r) {
+                                r.addEventListener('change', function () { panel.hidden = !document.getElementById('jazzcash').checked; });
+                            });
+                            var c = panel.querySelector('.jc-copy');
+                            if (c) c.addEventListener('click', function () {
+                                if (navigator.clipboard) navigator.clipboard.writeText(c.dataset.copy);
+                                c.innerHTML = '<i class="fa-solid fa-check"></i> Copied';
+                            });
+                        })();
+                        </script>
                     </section>
 
                     <!-- NOTES -->

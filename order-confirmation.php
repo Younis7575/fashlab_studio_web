@@ -28,6 +28,11 @@ require __DIR__ . '/includes/storefront-header.php';
                     <h1>Your order has been placed.</h1>
                     <p class="lead">Thank you for shopping with <?= e(setting('store_name')) ?>. Your order details are below.</p>
 
+                    <?php if (($order['payment_note'] ?? null) === 'review'): ?>
+                    <div class="jc-notice"><i class="fa-solid fa-hourglass-half"></i> We received your JazzCash payment details. Your order will be <strong>confirmed as soon as we verify the payment</strong>.</div>
+                    <?php elseif (($order['payment_note'] ?? null) === 'missing'): ?>
+                    <div class="jc-notice is-warn"><i class="fa-solid fa-triangle-exclamation"></i> Your order is placed, but the payment screenshot could not be saved. Please send it to us on WhatsApp with your order number.</div>
+                    <?php endif; ?>
                     <div class="confirmation-box">
                         <div class="summary-row"><span>Order Number</span><strong><?= e($order['order_number']) ?></strong></div>
                         <div class="summary-row"><span>Customer</span><strong><?= e($order['customer_name']) ?></strong></div>
@@ -36,8 +41,8 @@ require __DIR__ . '/includes/storefront-header.php';
                         <?php foreach ($order['items'] as $item): ?>
                             <div class="summary-row"><span><?= e($item['name']) ?> × <?= (int) $item['qty'] ?></span><strong><?= money((float) $item['price'] * (int) $item['qty']) ?></strong></div>
                         <?php endforeach; ?>
-                        <?php if ((float) $order['tax'] > 0): ?>
-                            <div class="summary-row"><span>Tax (rate set in Settings)</span><strong>+<?= money((float) $order['tax']) ?></strong></div>
+                        <?php if ((float) ($order['tax'] ?? 0) > 0): ?>
+                            <div class="summary-row"><span>Tax (rate set in Settings)</span><strong>+<?= money((float) ($order['tax'] ?? 0)) ?></strong></div>
                         <?php endif; ?>
                         <div class="summary-row total"><span>Total</span><strong><?= money((float) $order['total']) ?></strong></div>
                     </div>

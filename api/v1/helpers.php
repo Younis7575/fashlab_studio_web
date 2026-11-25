@@ -461,7 +461,17 @@ function api_order_detail(array $o): array
         tc_order_timeline((int) $o['id'])
     );
 
+    $mp = manual_payment_for_order((int) $o['id']);
+
     return api_order_summary($o) + [
+        'manual_payment' => $mp ? [
+            'method'         => (string) $mp['method'],
+            'status'         => (string) $mp['status'],
+            'label'          => manual_payment_label($mp),
+            'transaction_id' => (string) $mp['transaction_id'],
+            'submitted_at'   => $mp['created_at'],
+            'note'           => $mp['status'] === 'rejected' ? ($mp['admin_note'] ?? null) : null,
+        ] : null,
         'customer' => [
             'name'  => (string) $o['customer_name'],
             'email' => (string) $o['customer_email'],

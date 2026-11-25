@@ -58,6 +58,26 @@ function tc_schema_updates(): array
             'label'  => 'Customer personalisation on order lines (order_items.personalisation)',
             'ddl'    => 'ALTER TABLE `order_items` ADD COLUMN `personalisation` TEXT NULL AFTER `variant_label`',
         ],
+        [
+            'table'  => 'manual_payments',
+            'column' => null,
+            'label'  => 'JazzCash manual payment proofs (manual_payments)',
+            'ddl'    => "CREATE TABLE IF NOT EXISTS `manual_payments` (
+                `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                `order_id` INT UNSIGNED NOT NULL,
+                `method` VARCHAR(30) NOT NULL DEFAULT 'jazzcash',
+                `sender_title` VARCHAR(150) NOT NULL,
+                `transaction_id` VARCHAR(80) NOT NULL,
+                `screenshot` VARCHAR(255) NOT NULL,
+                `status` ENUM('submitted','approved','rejected') NOT NULL DEFAULT 'submitted',
+                `admin_note` VARCHAR(255) NULL DEFAULT NULL,
+                `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                `reviewed_at` DATETIME NULL DEFAULT NULL,
+                PRIMARY KEY (`id`),
+                KEY `idx_mp_order` (`order_id`),
+                KEY `idx_mp_status` (`status`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+        ],
     ];
 }
 

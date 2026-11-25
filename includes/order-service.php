@@ -81,6 +81,7 @@ function place_order(array $input): array
 
     $deliveryFee = (float) $totals['shipping'] + order_delivery_options()[$delivery]['fee'];
     $grandTotal  = max(0.0, (float) $totals['subtotal'] + $deliveryFee - $discountTotal);
+    $tax         = 0.0; // tax is not charged on this path yet; was an undefined variable
 
     $orderNumber = setting('order_prefix', 'TC-') . date('Ymd') . '-'
                  . strtoupper(substr(bin2hex(random_bytes(4)), 0, 6));
@@ -111,9 +112,8 @@ function place_order(array $input): array
             decimal($deliveryFee),
             decimal($discountTotal),
             decimal($grandTotal),
-            // Card payments are not wired to a gateway yet, so accepting one
-            // would create an order that can never be settled.
-            'cod',
+            // COD, or JazzCash (manual transfer verified by the admin).
+            (($input['payment'] ?? 'cod') === 'jazzcash' && manual_payments_ready()) ? 'jazzcash' : 'cod',
             'pending',
             'pending',
         ]);
@@ -262,7 +262,7 @@ function place_order(array $input): array
 /** Fetch a placed order by its number (tax included in the total). */
 function order_by_number(string $orderNumber): ?array
 {
-    $stmt = db()->prepare('SELECT *, price_decimal AS total FROM orders WHERE order_number = ? LIMIT 1');
+    $stmt = db()->prepare('SELECT * FROM orders WHERE order_number = ? LIMIT 1');
     $stmt->execute([mb_strtoupper(trim($orderNumber))]);
     $row = $stmt->fetch();
     return $row ?: null;

@@ -16,3 +16,8 @@ logs/
 
 # Local tooling scratch
 .freebuff/
+
+# Customer payment screenshots (private)
+uploads/payments/*
+!uploads/payments/.htaccess
+!uploads/payments/index.html

@@ -61,9 +61,15 @@ route('GET', '/checkout', static function (): void {
         'delivery_options' => $shippingMethods,
         // Only COD is offered: no payment gateway is connected, and taking a
         // card payment the store cannot settle would strand the order.
-        'payment_methods'  => [
+        'payment_methods'  => array_values(array_filter([
             ['code' => 'cod', 'name' => 'Cash on Delivery', 'enabled' => true],
-        ],
+            manual_payments_ready() ? manual_payment_account() + [
+                'code'         => 'jazzcash',
+                'enabled'      => true,
+                'manual'       => true,
+                'instructions' => 'Send the order total to this JazzCash account, then submit the account title you sent from, the transaction ID and a screenshot. Your order is confirmed once we verify the payment.',
+            ] : null,
+        ])),
         'free_shipping_threshold' => (float) setting('free_shipping_threshold', '8000'),
     ]);
 });
@@ -92,6 +98,7 @@ route('POST', '/orders', static function (): void {
         'country'      => api_input('country', 'Pakistan'),
         'is_gift'      => api_input_bool('is_gift'),
         'gift_message' => api_input('gift_message'),
+        'payment'      => api_input('payment', 'cod'),
     ]);
 
     if (!$result['ok']) {
@@ -148,4 +155,33 @@ route('GET', '/orders/{order_number}', static function (array $params): void {
     }
 
     api_ok(['order' => api_order_detail($order)]);
+});
+
+/**
+ * POST /orders/{order_number}/payment — multipart/form-data:
+ *   contact (email or phone used on the order), sender_title, transaction_id,
+ *   screenshot (image file).
+ * Submits JazzCash payment proof; the admin approves it to confirm the order.
+ */
+route('POST', '/orders/{order_number}/payment', static function (array $params): void {
+    $order = tc_find_order((string) $params['order_number'], api_input('contact'));
+    if (!$order) {
+        api_fail('We could not find that order. Please check the details and try again.', 404);
+    }
+    if ((string) $order['payment_status'] === 'paid') {
+        api_fail('This order is already paid.', 409);
+    }
+
+    $res = manual_payment_submit(
+        (int) $order['id'],
+        api_input('sender_title'),
+        api_input('transaction_id'),
+        $_FILES['screenshot'] ?? []
+    );
+    if (!$res['ok']) {
+        api_invalid($res['errors'], reset($res['errors']) ?: 'Please check the payment details.');
+    }
+
+    $order = order_by_number((string) $order['order_number']);
+    api_ok(['order' => api_order_detail($order)], 'Payment details received. We will confirm your order after verifying the payment.', 201);
 });

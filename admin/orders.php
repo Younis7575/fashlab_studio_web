@@ -41,6 +41,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect(url('/admin/orders.php?id=' . $orderId));
     }
 
+    if ($action === 'payment_review') {
+        $orderId   = post_int('id');
+        $paymentId = post_int('payment_id');
+        $approve   = post('decision', 10) === 'approve';
+        if (manual_payment_review($paymentId, $approve, post('admin_note', 255))) {
+            record_activity('payment_review', 'order', $orderId, $approve ? 'JazzCash payment approved' : 'JazzCash payment rejected');
+            flash_set('success', $approve ? 'Payment approved — order confirmed.' : 'Payment rejected.');
+        } else {
+            flash_set('error', 'Payment record not found.');
+        }
+        redirect(url('/admin/orders.php?id=' . $orderId));
+    }
+
     if ($action === 'delete') {
         $orderId = post_int('id');
         $db->prepare('DELETE FROM order_items WHERE order_id = ?')->execute([$orderId]);
@@ -164,6 +177,36 @@ if ($detailId > 0) {
                 </ul>
             </div>
 
+            <?php $mp = manual_payment_for_order((int) $order['id']); if ($mp): ?>
+            <!-- JAZZCASH PAYMENT -->
+            <div class="card" style="border:2px solid <?= $mp['status'] === 'submitted' ? '#e0a100' : ($mp['status'] === 'approved' ? '#2f8a4e' : '#c0392b') ?>">
+                <div class="card-title">JazzCash Payment — <?= e(ucfirst($mp['status'] === 'submitted' ? 'Awaiting approval' : $mp['status'])) ?></div>
+                <ul class="detail-list">
+                    <li><span>Sender account title</span><strong><?= e($mp['sender_title']) ?></strong></li>
+                    <li><span>Transaction ID</span><strong><?= e($mp['transaction_id']) ?></strong></li>
+                    <li><span>Submitted</span><strong><?= e(format_datetime($mp['created_at'])) ?></strong></li>
+                    <?php if (!empty($mp['admin_note'])): ?><li><span>Note</span><strong><?= e($mp['admin_note']) ?></strong></li><?php endif; ?>
+                </ul>
+                <a href="<?= e(url('/admin/payment-proof.php?id=' . (int) $mp['id'])) ?>" target="_blank" rel="noopener">
+                    <img src="<?= e(url('/admin/payment-proof.php?id=' . (int) $mp['id'])) ?>" alt="Payment screenshot" style="width:100%;max-height:420px;object-fit:contain;border-radius:8px;background:#f6f6f6;margin:10px 0">
+                </a>
+                <?php if ($mp['status'] === 'submitted'): ?>
+                <form method="post" action="<?= e(url('/admin/orders.php?id=' . $detailId)) ?>">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="action" value="payment_review">
+                    <input type="hidden" name="id" value="<?= (int) $order['id'] ?>">
+                    <input type="hidden" name="payment_id" value="<?= (int) $mp['id'] ?>">
+                    <div class="form-group"><label for="admin_note">Note (optional, shown to customer if rejected)</label>
+                        <input type="text" id="admin_note" name="admin_note" maxlength="255"></div>
+                    <div style="display:flex;gap:8px">
+                        <button name="decision" value="approve" class="btn btn-primary" style="flex:1;background:#2f8a4e;border-color:#2f8a4e"><i class="fa-solid fa-check"></i> Approve &amp; Confirm Order</button>
+                        <button name="decision" value="reject" class="btn btn-danger" style="flex:1" onclick="return confirm('Reject this payment?')"><i class="fa-solid fa-xmark"></i> Reject</button>
+                    </div>
+                </form>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
+
             <!-- STATUS -->
             <div class="card">
                 <div class="card-title">Update Status</div>
@@ -222,7 +265,9 @@ $perPage = 20;
 
 $where  = [];
 $params = [];
-if ($status !== '' && in_array($status, ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'], true)) {
+if ($status === 'awaiting_payment' && manual_payments_ready()) {
+    $where[] = "id IN (SELECT order_id FROM manual_payments WHERE status = 'submitted')";
+} elseif ($status !== '' && in_array($status, ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'], true)) {
     $where[] = 'order_status = ?';
     $params[] = $status;
 }
@@ -293,6 +338,12 @@ ob_start();
             <?= e($label) ?> <span style="opacity:.65"><?= (int) ($statusCounts[$key] ?? 0) ?></span>
         </a>
     <?php endforeach; ?>
+    <?php $jcWaiting = manual_payments_waiting(); ?>
+    <a href="<?= e(url('/admin/orders.php?status=awaiting_payment')) ?>"
+       style="padding:6px 14px;border-radius:999px;font-size:12.5px;font-weight:600;text-decoration:none;
+              <?= $status === 'awaiting_payment' ? 'background:#a3122e;color:#fff' : 'background:#fde8ec;color:#a3122e' ?>">
+        <i class="fa-solid fa-mobile-screen-button"></i> JazzCash awaiting approval <span style="opacity:.75"><?= $jcWaiting ?></span>
+    </a>
 </div>
 
 <div class="card">
